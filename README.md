@@ -33,7 +33,7 @@ ROS package for autonomous and manual driving
 
 5. Run the desired node in your previous tab.
 
-  ## Planning node
+  ### Planning node
   ```bash
   rosrun motion_control_pkg planeacion_a.py
   ```
