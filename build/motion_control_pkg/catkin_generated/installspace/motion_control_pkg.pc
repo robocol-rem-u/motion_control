@@ -1,0 +1,8 @@
+prefix=/home/robotica/motion_control/install
+
+Name: motion_control_pkg
+Description: Description of motion_control_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
