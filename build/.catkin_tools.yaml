@@ -1,0 +1,6 @@
+devel_space: /home/robotica/motion_control/devel
+install: false
+install_space: /home/robotica/motion_control/install
+profile: default
+source_space: /home/robotica/motion_control/src
+workspace: /home/robotica/motion_control
