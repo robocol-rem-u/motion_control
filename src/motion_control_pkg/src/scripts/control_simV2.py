@@ -25,7 +25,7 @@ deltaX, deltaY = 0, 0
 
 rho = 0
 auto = 0
-hayRuta = 1
+hayRuta = 0
 ruta = np.array([])
 
 def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
@@ -58,7 +58,8 @@ def habilitarMov(msg): #Me indica si debo mover el robot autonomamente o no
 
 
 def ruta_callback(msg):
-	global ruta
+	global ruta, hayRuta
+	hayRuta = 1
 	#a = np.zeros((3,3))
 	print('msg.data y len:')
 	print(msg.data)
@@ -72,11 +73,11 @@ def ruta_callback(msg):
 	print(len(ruta))
 
 
-def hayRuta_callback(msg): #Me indica si ya hay ruta o no
+""" def hayRuta_callback(msg): #Me indica si ya hay ruta o no
 	global hayRuta
 	hayRuta = msg.data
 	print('hayRuta: ' + str(auto))
-
+ """
 
 #Funcion principal de movimiento
 def main_control():
@@ -91,11 +92,11 @@ def main_control():
 	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
 	rospy.Subscriber('Robocol/MotionControl/flag_autonomo',Bool,habilitarMov, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/ruta", numpy_msg(Floats), ruta_callback, tcp_nodelay=True)
-	rospy.Subscriber('Robocol/MotionControl/flag_hayRuta',Bool,hayRuta_callback, tcp_nodelay=True)
+	#rospy.Subscriber('Robocol/MotionControl/flag_hayRuta',Bool,hayRuta_callback, tcp_nodelay=True)
 
 
 	#ruta = np.array([[0,0], [1,0], [1,1], [0,1], [0,0]])
-	ruta = np.array([[2.5,0.019],[1.5,1],[-0.035169,0.018923]])
+	#ruta = np.array([[2.5,0.019],[1.5,1],[-0.035169,0.018923]])
 
 	#ruta = np.array([[5.302769,0], [4.203994,6.226416], [14.329459,-0.4288], [29.2159,5.30052], [12.103476,-11.714824]])
 
@@ -110,7 +111,6 @@ def main_control():
 	K_alpha = 0.35
 	K_beta = -0.0
 
-	hayRuta = 1
 
 	while not rospy.is_shutdown():
 		empezarDeNuevo = False

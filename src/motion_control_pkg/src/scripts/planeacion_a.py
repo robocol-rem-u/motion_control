@@ -18,6 +18,8 @@ import os
 roslib.load_manifest('rospy')
 from std_msgs.msg import MultiArrayDimension
 
+from rospy_tutorials.msg import Floats
+
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
 	ruta = scriptDir + "/imagen2.png"
@@ -421,6 +423,8 @@ def inicio_fin(coordenadas):
 	r = numpy.array (ruta2,dtype = numpy.float32)
 	
 	#pub.publish (data = r)
+		#a = np.array([[1,2,3],[4,5,6],[7,8,9]])
+	pub.publish(r)
 
 
 
@@ -430,6 +434,7 @@ def planeacion_nodo():
 	
 	rospy.init_node('Planeacion', anonymous=True)  # Inicia el nodo teleop
 	#pub = rospy.Publisher('/robocol/ruta', numpy_nd_msg(Float32MultiArray), queue_size=1)    #toca modificar los mensajes 
+	pub = rospy.Publisher('Robocol/MotionControl/ruta', numpy_msg(Floats),queue_size=10)
 	rospy.Subscriber('/Robocol/Inicio_fin', PoseArray, inicio_fin)
 	rate = rospy.Rate(10)
 	rospy.spin()
