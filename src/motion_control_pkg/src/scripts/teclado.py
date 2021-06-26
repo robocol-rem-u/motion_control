@@ -62,7 +62,7 @@ def publicar(comando):
 	""" Publica el comando para realizar el movimiento de la tortuga"""
 	global pub, modo
 	pub.publish(comando)
-	print(comando)
+	#print(comando)
 	#print(modo)
 
 
@@ -78,6 +78,7 @@ def rover_teleop():
 	#listener = Listener(on_press=on_press,on_release=on_release)
 	#listener.start()
 	#listener.join()
+	print('Esperando comando...')
 	while not rospy.is_shutdown():
 		with Listener(on_press=on_press, on_release=on_release) as listener:
 			listener.join()
@@ -90,4 +91,4 @@ if __name__== '__main__':
 	try:
 		rover_teleop()
 	except rospy.ROSInterruptException:
-		print('No Funciona el nodo')
+		print('Nodo detenido')
