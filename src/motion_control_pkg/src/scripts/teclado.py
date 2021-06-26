@@ -4,6 +4,10 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 from pynput.keyboard import Key, Listener, Controller
 
+#MANEJA EL ROBOT CON EL TECLADO U OPRIMIENDO K CAMBIA AL CONTROL AUTOMATICO
+#DESPUES DE CORRER ESTE CORRER EL NODO DE control_sim
+#ROBOCOL
+
 comando = Twist()
 flag_autonomo = Bool()
 lastpressed = ''
@@ -14,7 +18,7 @@ modo = 0
 def on_press(key):
 	"""Lee la tecla oprimida por el usuario y determina la accion que se debe realizar."""
 	global comando, modo, flag_autonomo, pub_flagAuto
-	if modo == 1:
+	if modo == 1: #Manejo con Teclas
 		if (key == Key.right) or (format(key) == "'d'"):
 			comando.angular.z = -4
 		elif (key == Key.left) or (format(key) == "'a'"):
@@ -34,11 +38,11 @@ def on_press(key):
 		if modo == 0:
 			modo = 1
 			flag_autonomo = False
-			print('modo:' + str(modo))
+			print('modo: ' + ('Teleop' if modo == 1 else 'Autonomo'))
 		else:
 			modo = 0
 			flag_autonomo = True
-			print('modo:' + str(modo))
+			print('modo: ' + ('Teleop' if modo == 1 else 'Autonomo'))
 
 		pub_flagAuto.publish(flag_autonomo)
 
@@ -59,7 +63,7 @@ def publicar(comando):
 	global pub, modo
 	pub.publish(comando)
 	print(comando)
-	print(modo)
+	#print(modo)
 
 
 def rover_teleop():
