@@ -1,7 +1,7 @@
-# motion_control_pkg 
+# motion_control
 
 ## Overview
-This is a ROS package made for autonomous navigation and teleoperation of the leo rover, for the ERC 2021.
+This is a ROS workspace made for autonomous navigation and teleoperation of the leo rover, for the ERC 2021.
 
 **Keywords:** ROS, ERC_2021, python
 
@@ -13,11 +13,10 @@ The source code is released for use at Robocol.
 Affiliation: [Robocol](https://robocol.uniandes.edu.co/es/)<br />
 Maintainer: Motion control team at Robocol, email@idk.com
 
-The motion_control_pkg package has been tested under [ROS] Melodic on Ubuntu 18.04.
+The motion_control workspace has been tested under [ROS] Melodic on Ubuntu 18.04.
 For optimal performance, running a partition with Ubuntu on your machine is recommended, however, a virtual machine is still a good option. 
 This is development code, expect continous changes and improvements. 
 
-[![Build Status]]()
 
 ![Example image](src/motion_control_pkg/src/scripts/mapafinal.png)
 
@@ -32,11 +31,11 @@ In order for it to work, you must check their repository [here](https://github.c
 #### Dependencies
 - python3 (you probably already have this with your ubuntu and ROS installation)
 - [Robot Operating System (ROS)](http://wiki.ros.org) (middleware for robotics)
-use pip3 install [module] or python3 -m pip install [module] to install the following modules
-- [rospkg]
-- [opencv-python] (computer vision library)
-- [matplotlib]
-- [pynput]
+- use pip3 install [module] or python3 -m pip install [module] to install the following modules
+```bash
+pip3 install opencv-python matplotlib rospkg pynput
+```
+
 
 *Troubleshooting
 Pip install [opencv-python](https://pypi.org/project/opencv-python/) fails with ModuleNotFoundError: No module named 'skbuild':
@@ -63,6 +62,7 @@ your pip version must be >= 19.3. Please upgrade pip with pip install --upgrade 
 3. Build the workspace
 
   ```bash
+  catkin build
   source devel/setup.bash
   ```
 
