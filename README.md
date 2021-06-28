@@ -115,7 +115,7 @@ rostopic echo /Robocol/Inicio_fin
 ```
 Now that all the required nodes are running, let's publish a message to create a path:
 ```bash
-rostopic pub /Robocol/Inicio_fin geometry_msgs/PoseArray "header:
+rostopic pub -1 /Robocol/Inicio_fin geometry_msgs/PoseArray "header:
   seq: 0
   stamp:
     secs: 0
@@ -157,10 +157,16 @@ Congratulations! You have succesfully made leo navigate autonomously.
 
 ## Launch files
 
-
+### autonomous_nav.launch
+runs the three main nodes required for autonomous navigation
+```bash
+cd ~/motion_control
+source devel/setup.bash
+roslaunch motion_control_pkg autonomous_nav.launch
+```
 ## Nodes
 
-### ros_package_template
+### planeacion
 
 
 #### Subscribed Topics
@@ -168,8 +174,9 @@ Congratulations! You have succesfully made leo navigate autonomously.
 
 #### Published Topics
 
-...
 
+
+#### Services
 
 #### Services
 
