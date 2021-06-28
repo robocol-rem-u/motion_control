@@ -13,7 +13,7 @@ The source code is released for use at Robocol.
 Affiliation: [Robocol](https://robocol.uniandes.edu.co/es/)<br />
 Maintainer: Motion control team at Robocol, email@idk.com
 
-The motion_control workspace has been tested under [ROS] Melodic on Ubuntu 18.04.
+The motion_control_pkg package has been tested under [ROS] Melodic on Ubuntu 18.04.
 For optimal performance, running a partition with Ubuntu on your machine is recommended, however, a virtual machine is still a good option. 
 This is development code, expect continous changes and improvements. 
 
@@ -23,7 +23,6 @@ This is development code, expect continous changes and improvements.
 
 ## Installation
 
-### Installation from Packages
 ### Building from Source
 The package has been made to work with the ERC-Remote-Navigation-Sim package.
 In order for it to work, you must check their repository [here](https://github.com/EuropeanRoverChallenge/ERC-Remote-Navigation-Sim/tree/master) and follow their instructions for building and launching the marsyard simulation. We recomend you build this workspace at ~ in your machine.
@@ -83,7 +82,7 @@ your pip version must be >= 19.3. Please upgrade pip with pip install --upgrade 
 Docker is a great way to run an application with all dependencies and libraries bundles together. 
 Make sure to [install Docker](https://docs.docker.com/get-docker/) first. 
 
-This package has not been made to work with docker yet
+This workspace has not been made to work with docker yet
 
 ## Usage
 In order to create a path given two points in a map, send the coordinates to the control node and have the rover move autonomously towards a goal, follow these steps:
