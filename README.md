@@ -11,7 +11,7 @@ The source code is released for use at Robocol.
 
 **Author: motion control and power subsystems<br />
 Affiliation: [Robocol](https://robocol.uniandes.edu.co/es/)<br />
-Maintainer: Motion control team at Robocol, email@idk.com
+Maintainer: Motion control team at Robocol, robocol@uniandes.edu.co
 
 The motion_control_pkg package has been tested under [ROS] Melodic on Ubuntu 18.04.
 For optimal performance, running a partition with Ubuntu on your machine is recommended, however, a virtual machine is still a good option. 
@@ -149,7 +149,7 @@ Now, head to the terminal running teclado.py and press k twice, until it display
 ```
 modo: Autonomo
 ```
-If you followed the instructions correctly, leo rover should now be moving on its own! See the terminal running contro_simV2.py to see leo's pose, error and goal.
+If you followed the instructions correctly, leo rover should now be moving on its own! See the terminal running control_simV2.py to see leo's pose, error and goal.
 
 Congratulations! You have succesfully made leo navigate autonomously.
 
@@ -166,29 +166,32 @@ roslaunch motion_control_pkg autonomous_nav.launch
 ```
 ## Nodes
 
-### planeacion
-
-
+### Planeacion
+Contains the A* algorithm to create a path given two poses.
 #### Subscribed Topics
-
+* **`/Robocol/Inicio_fin`** ([PoseArray])
 
 #### Published Topics
+* **`Robocol/MotionControl/ruta`** ([numpy_msg(Floats)])
 
+### rover_teleop
+Controls the robot with the keyboard. Press k to toggle autonomous navigation.
+Run the control node (control_simV2) after this one.
+MANEJA EL ROBOT CON EL TECLADO U OPRIMIENDO K CAMBIA AL CONTROL AUTOMATICO.
+DESPUES DE CORRER ESTE CORRER EL NODO DE control_sim.
+#### Published topics
+* **`/cmd_vel`** ([Twist])
+* **`Robocol/MotionControl/flag_autonomo`** ([Bool])
 
-
-#### Services
-
-#### Services
-
-
-
-#### Parameters
-
-
-
-### NODE_B_NAME
-
-...
+### control
+Recieves path and moves the robot.
+RECIBE LAS INDICACIONES PARA HACER EL RECORRIDO Y MUEVE AL ROBOT - VERSION 4.
+#### Published topics
+* **`cmd_vel`** ([Twist])
+#### Subscribed Topics
+* **`zed2/odom`** ([Odometry])
+* **`Robocol/MotionControl/flag_autonomo`** ([Bool])
+* **`Robocol/MotionControl/ruta`** ([numpy_msg(Floats)])
 
 
 ## Bugs & Feature Requests
