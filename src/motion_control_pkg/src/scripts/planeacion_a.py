@@ -5,6 +5,7 @@ import time
 from heapq import heappop, heappush
 import numpy 
 import matplotlib.pyplot as plt
+import matplotlib.image as img
 from PIL import Image
 global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
 from std_msgs.msg import String
@@ -17,8 +18,8 @@ import rospy
 import os
 roslib.load_manifest('rospy')
 from std_msgs.msg import MultiArrayDimension
-
 from rospy_tutorials.msg import Floats
+
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
@@ -31,12 +32,11 @@ def configuration_method(inicial_m,final_m):
 	gridmap = gridmap/100
 	PROB_FREE = 0.3
 	PROB_OCC = 0.6
-	#print(gridmap.shape)
+	
 	# DO NOT CHANGE
 	# size of canvas (variables used in Tools methods)
 	height, width = gridmap.shape
-	size_win_x = 819
-	size_win_y = 549
+	
 	
 	x_inicial_m = float(inicial_m[0])
 	y_inicial_m = float(inicial_m[1])
@@ -66,12 +66,12 @@ def configuration_method(inicial_m,final_m):
 	# initialize canvas with gridmap drawing
 	# create graph from gridmap
 	graph = gridmap2graph(gridmap,width,height,PROB_FREE)
-
+	print("* gridmap2graph")
 
 	start_time = time.time()
 	# solve path planning
 	path = Astar(graph, heuristica,GOAL,START,gridmap)
-
+	print("* Astar")
 	print("--- %s segundos ---" % (time.time() - start_time))
 
 	pos_actualx = x_inicial
@@ -107,14 +107,12 @@ def configuration_method(inicial_m,final_m):
 			coordenates_array.append([pos_actualx,pos_actualy])
 			#f.write(str(pos_actualx) + "," + str(pos_actualy) + "\n")
 			
-	#print(coordenates_array)
+	
 	finales =coordenates(coordenates_array,width,height)
-	dibujo_ruta2(pixel,coordenates_array,width,height)
+	esquinas = corners(coordenates_array)
+	dibujo_ruta2(pixel,coordenates_array,esquinas,width,height)
 	#f.write(str(finales))
 	#f.close()
-	print("Finalizado")
-
-	cv2.waitKey(0) 
 	return finales
 
 def gridmap2graph(gridmap,width,height,PROB_FREE):
@@ -230,7 +228,23 @@ def Astar(graph, type_h,GOAL,START,gridmap):
 	else:
 		print("No se encontró un camino directo.")
 
-
+def corners (route):
+	c = []
+	for i in range (1,len (route) -1):      
+		if route [i][0] == route [i-1][0] :
+			if route [i][0] != route [i+1][0] :
+				new_coord = route [i]
+				c.append(new_coord)  
+		elif route [i][1] == route [i-1][1] :
+			if route [i][1] != route [i+1][1] :
+				new_coord = route [i]
+				c.append(new_coord)    
+		elif route [i][0]-1 == route [i-1][0] and route [i][1]-1 == route [i-1][1]:  
+			if route [i][0]+1 != route [i+1][0] or  route [i][1]+1 != route [i+1][1]:
+				new_coord = route [i]
+				c.append(new_coord)  
+	c.append(route [len (route)-1])
+	return c
 
 def coordenates(route,width,height):  
 	x_center = width / 2
@@ -264,9 +278,9 @@ def coordenates(route,width,height):
 	return final_coordenates
 
 def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
-	print("inicial",x_inicial,y_inicial)
-	print("final",x_final,y_final)
-	print("-------------------")
+	#print("inicial",x_inicial,y_inicial)
+	#print("final",x_final,y_final)
+	#print("-------------------")
 	if pixel[x_inicial,y_inicial][0]!=255 and pixel[x_inicial,y_inicial][1]!=255 and pixel[x_inicial,y_inicial][2]!=255:
 		print("La posicion inicial es un obstaculo")
 		izquierda = x_inicial
@@ -357,12 +371,11 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				aux=False
 				print("No se encontro otro punto que no sea obstaculo")
 
-	print("inicial",x_inicial,y_inicial)
-	print("final",x_final,y_final)
+	#print("inicial",x_inicial,y_inicial)
+	#print("final",x_final,y_final)
 	return x_inicial,y_inicial,x_final,y_final
 
-
-def dibujo_ruta2(pixel,array_pos,height,width):
+def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	matrixMap=numpy.ones([width,height])
 	RGBMap=[]
 	for i in range(width):
@@ -373,15 +386,20 @@ def dibujo_ruta2(pixel,array_pos,height,width):
 				matrixMap[i,j]=0
 	for i in range(len(array_pos)):
 		matrixMap[array_pos[i][1],array_pos[i][0]]=2
+	for i in range(len(esquinas)):
+		matrixMap[esquinas[i][1],esquinas[i][0]]=3
 	for i in range(width):
 		file=[]
 		for j in range(height):
 			if matrixMap[i,j]==1:
-				RGB=[255,255,255,255]
+				RGB=[255,255,255,255] #white
 			elif matrixMap[i,j]==0:
-				RGB = [0,0,0,255]
-			else:
-				RGB = [255,0,0,255]
+				RGB = [0,0,0,255]   #Black
+			elif matrixMap[i,j]==2:
+				RGB = [255,0,0,255] #Red
+			elif matrixMap[i,j]==3: 
+				RGB = [0,255,0,255] #Green
+			
 			file.append(RGB)
 		RGBMap.append(file)
 	RGBMap=numpy.array(RGBMap).astype(numpy.uint8)
@@ -389,7 +407,8 @@ def dibujo_ruta2(pixel,array_pos,height,width):
 	scriptDir = os.path.dirname(__file__)
 	ruta = scriptDir + "/mapafinal.png"
 	routeMap.save(ruta)
-	print("Se guardo el mapa")
+
+	print("*Se guardo el mapa")
 	return routeMap
 
 def pixels (coord,height, width) :
@@ -404,29 +423,32 @@ def pixels (coord,height, width) :
 	return [x,y]
 
 def inicio_fin(coordenadas):
+	print("-----------------------------------------------------")
 	global pub
 	x_ini = coordenadas.poses[0].position.x    #toca crear el mensaje
-	y_ini = coordenadas.poses[0].position.y    #toca crear el mensaje
+	y_ini = - coordenadas.poses[0].position.y    #toca crear el mensaje
 	x_fin = coordenadas.poses[1].position.x     #toca crear el mensaje
-	y_fin = coordenadas.poses[1].position.y     #toca crear el mensaje
+	y_fin = - coordenadas.poses[1].position.y     #toca crear el mensaje
     #cambiar las coordenadas de metros a pixeles   
 	inicial_m=(x_ini,y_ini)
 	final_m=(x_fin,y_fin)
+	print(f"Inicio:({x_ini},{-y_ini})\nFin:({x_fin},{-y_fin})")
 	ruta=configuration_method(inicial_m,final_m)
-	print(ruta)
+	print("*Finalizado")
 	ruta2 = []
 	for i in range (len(ruta)):
-		ruta2.append(ruta[i][0])
-		ruta2.append(ruta[i][1])
-
-	print(ruta2)
+		ruta2.append(round (ruta[i][0],2))
+		ruta2.append(round (ruta[i][1],2))
 	r = numpy.array (ruta2,dtype = numpy.float32)
-	
-	#pub.publish (data = r)
-		#a = np.array([[1,2,3],[4,5,6],[7,8,9]])
 	pub.publish(r)
-
-
+	print ("*Route published")
+	scriptDir = os.path.dirname(__file__)
+	ruta = scriptDir + "/mapafinal.png"
+	camino = img.imread(ruta)
+	#plt.close()
+	plt.imshow(camino)
+	plt.show()
+	print("*Waiting for new coordenates")
 
 def planeacion_nodo():
 	#declaración coordenadas iniciales y finales 
@@ -439,10 +461,9 @@ def planeacion_nodo():
 	rate = rospy.Rate(10)
 	rospy.spin()
 	
-
-
 if __name__ == '__main__':
     try:
+		
         planeacion_nodo()
     except rospy.ROSInterrupyException:
         rospy.loginfo("node terminated")
