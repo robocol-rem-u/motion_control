@@ -11,7 +11,7 @@ global pos_x_total, pos_y_total
 global final
 
 #GRAFICA EN TIEMPO REAL LA POSICION DEL ROBOT EN EL MAPA
-#CAMBIAR LA DIRECCION DE LA IMAGEN (girdmap)
+#CAMBIAR LA DIRECCION DE LA IMAGEN (gridmap), SOLO SE PUEDE CORRER DESPUES DE CORRER PLANEACION
 #ROBOCOL
 
 pos_x, pos_y, theta = 0, 0, 0 #Donde se almacena la posicion que nos da Gazebo
@@ -22,23 +22,28 @@ pos_y_total = [0]
 
 final = False #Variables para terminar plot
 
-gridmap = cv2.imread('./src/robocol_traction/map/sinBOrde.png',0) 
+
+scriptDir = os.path.dirname(__file__)
+ruta_img = scriptDir + "/mapafinal.png" #Utiliza el mapa que sale al correr "planeacion_a.py"
+gridmap = cv2.imread(ruta_img,0) 
 
 height, width = gridmap.shape
 
 gridmap = cv2.cvtColor(gridmap, cv2.COLOR_GRAY2RGB)
 
-def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
+def position_callback(msg): #Me regresa la posicion del robot
 	global pos_x, pos_y, theta, pos_x_total, pos_y_total
-	msg_pose = msg.pose
-	msg_pose_pos = msg_pose[1].position
-	pos_x = msg_pose_pos.x
-	pos_y = msg_pose_pos.y
-	pos_z = msg_pose_pos.z
+	pos_x = msg.pose.pose.position.x
+	pos_y = msg.pose.pose.position.y
 
-	msg_pose_orC = msg_pose[1].orientation
+	orC_x = msg.pose.pose.orientation.x
+	orC_y = msg.pose.pose.orientation.y
+	orC_z = msg.pose.pose.orientation.z
+	orC_w = msg.pose.pose.orientation.w
 
-	orientation_list = [msg_pose_orC.x, msg_pose_orC.y, msg_pose_orC.z, msg_pose_orC.w]
+
+	#orientation_q = msg.pose.pose.orientation
+	orientation_list = [orC_x, orC_y, orC_z, orC_w]
 	(roll, pitch,theta) = euler_from_quaternion(orientation_list)
 
 	pos_x_total.append(pos_x)
@@ -53,7 +58,7 @@ def main():
 
 	#pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 	rate = rospy.Rate(10) #10hz
-	rospy.Subscriber("gazebo/model_states", ModelStates, position_callback, tcp_nodelay=True)
+	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
 
 	while not rospy.is_shutdown():
 		pos_x_new = int(pos_x*10 + width/2)
