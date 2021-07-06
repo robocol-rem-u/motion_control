@@ -87,6 +87,8 @@ Make sure to [install Docker](https://docs.docker.com/get-docker/) first.
 **NOTE**
 If you are using docker on linux, make sure to run the docker commands with sudo. Or, you can configure docker to work without root permisions [here](https://docs.docker.com/engine/install/linux-postinstall/).
 
+It is NOT recommended to build the image from windows, since issues can arise due to file format incompatibility. Working on a *nix system (linux, macos) is recommended.
+
 ---
 cd to your working repository, then run docker build to create an image named erc.
 ```bash
