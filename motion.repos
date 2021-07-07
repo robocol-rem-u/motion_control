@@ -1,0 +1,5 @@
+repositories:
+  motion:
+    type: git
+    url: https://github.com/robocol-rem-u/motion_control.git
+    

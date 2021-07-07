@@ -82,8 +82,71 @@ your pip version must be >= 19.3. Please upgrade pip with pip install --upgrade 
 Docker is a great way to run an application with all dependencies and libraries bundles together. 
 Make sure to [install Docker](https://docs.docker.com/get-docker/) first. 
 
-This workspace has not been made to work with docker yet
+#### Build image from Dockerfile
+---
+**NOTE**
+If you are using docker on linux, make sure to run the docker commands with sudo. Or, you can configure docker to work without root permisions [here](https://docs.docker.com/engine/install/linux-postinstall/).
 
+It is NOT recommended to build the image from windows, since issues can arise due to file format incompatibility. Working on a *nix system (linux, macos) is recommended.
+
+---
+cd to your working repository, then run docker build to create an image named erc.
+```bash
+cd ~/motion_control
+docker build -t erc .
+```
+spin up a container named motion-container from the image
+```bash
+docker run -it --name motion-container erc
+```
+to start a new terminal inside the container, on a new terminal on your host run:
+```bash
+docker exec -it motion-container bash
+```
+Now let's try to run a node. 
+```bash
+source devel/setup.bash
+roscore
+```
+On a new terminal (inside the container)
+```bash
+source devel/setup.bash
+rosrun motion_control_pkg planeacion_a.py 
+```
+If you wish, you can echo the route topic:
+```bash
+source devel/setup.bash
+rostopic echo /Robocol/MotionControl/ruta 
+```
+Finally, publish to the topic
+```bash
+rostopic pub -1 /Robocol/Inicio_fin geometry_msgs/PoseArray "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+poses:
+- position:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  orientation:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0
+- position:
+    x: 5.0
+    y: 0.0
+    z: 0.0
+  orientation:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0"
+```
+You should see an output on the node and the route topic.
 ## Usage
 In order to create a path given two points in a map, send the coordinates to the control node and have the rover move autonomously towards a goal, follow these steps:
 
