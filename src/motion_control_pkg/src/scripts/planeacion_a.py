@@ -17,12 +17,11 @@ import rospy
 import os
 roslib.load_manifest('rospy')
 from std_msgs.msg import MultiArrayDimension
-
 from rospy_tutorials.msg import Floats
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen2.png"
+	ruta = scriptDir + "/imagen5.png"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
@@ -35,8 +34,6 @@ def configuration_method(inicial_m,final_m):
 	# DO NOT CHANGE
 	# size of canvas (variables used in Tools methods)
 	height, width = gridmap.shape
-	
-	
 	x_inicial_m = float(inicial_m[0])
 	y_inicial_m = float(inicial_m[1])
 	x_final_m  = float (final_m[0])
@@ -45,7 +42,7 @@ def configuration_method(inicial_m,final_m):
 	y_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [1]
 	x_final = pixels([x_final_m,y_final_m],height, width) [0]
 	y_final = pixels([x_final_m,y_final_m],height, width) [1]
-
+	
 	x_inicial,y_inicial,x_final,y_final=es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height)
 	#declaración coordenadas iniciales y finales
 	
@@ -61,14 +58,11 @@ def configuration_method(inicial_m,final_m):
 	heuristica_propia = 2 # DO NOT CHANGE
 	heuristica = 2 #seleccion heuristica 
 
-	# DO NOT CHANGE
-	# initialize canvas with gridmap drawing
-	# create graph from gridmap
 	graph = gridmap2graph(gridmap,width,height,PROB_FREE)
 	print("* gridmap2graph")
 
 	start_time = time.time()
-	# solve path planning
+
 	path = Astar(graph, heuristica,GOAL,START,gridmap)
 	print("* Astar")
 	print("--- %s segundos ---" % (time.time() - start_time))
@@ -76,41 +70,32 @@ def configuration_method(inicial_m,final_m):
 	pos_actualx = x_inicial
 	pos_actualy = y_inicial
 
-	#f = open("camino.txt","w+")
-
-	#poner 0,0
 	pos_actualx = x_inicial
 	pos_actualy = y_inicial
-	#f.write("All coordenates: \n")
 	for direccion in path:
 		if direccion == "N":
 			pos_actualx = pos_actualx 
 			pos_actualy = pos_actualy -1
 			coordenates_array.append([pos_actualx,pos_actualy])
-			#f.write(str(pos_actualx) + "," + str(pos_actualy) + "\n")
 
 		elif direccion == "W":
 			pos_actualx = pos_actualx -1
 			pos_actualy = pos_actualy 
 			coordenates_array.append([pos_actualx,pos_actualy])
-			#f.write(str(pos_actualx) + "," + str(pos_actualy) + "\n")
 		elif direccion == "S":
 			pos_actualx = pos_actualx 
 			pos_actualy = pos_actualy + 1
 			coordenates_array.append([pos_actualx,pos_actualy])
-			#f.write(str(pos_actualx) + "," + str(pos_actualy) + "\n")
 			
 		elif direccion == "E":
 			pos_actualx = pos_actualx + 1
 			pos_actualy = pos_actualy 
 			coordenates_array.append([pos_actualx,pos_actualy])
-			#f.write(str(pos_actualx) + "," + str(pos_actualy) + "\n")
-			
-	
-	finales =coordenates(coordenates_array,width,height)
-	esquinas = corners(coordenates_array)
+
+	esquinas =coordenates(coordenates_array)
 	dibujo_ruta2(pixel,coordenates_array,esquinas,width,height)
-	
+	print (f"* {len (esquinas)} Coordenates.")
+	finales = convertir(esquinas,width,height)
 	return finales
 
 def gridmap2graph(gridmap,width,height,PROB_FREE):
@@ -226,53 +211,68 @@ def Astar(graph, type_h,GOAL,START,gridmap):
 	else:
 		print("No se encontró un camino directo.")
 
-def corners (route):
-	c = []
-	for i in range (1,len (route) -1):      
-		if route [i][0] == route [i-1][0] :
+def coordenates(route):  
+	c = []  
+	for i in range (2,len (route) -2):     
+		if (route[i][0]-route[i-2][0]) !=0 and abs((route[i][1]-route[i-2][1])/(route[i][0]-route[i-2][0])) == 1:
+			if (route[i][0]-route[i+2][0]) != 0 and  abs((route[i][1]-route[i+2][1])/(route[i][0]-route[i+2][0])) != 1:
+				new_p = route [i]
+				c.append(new_p)
+		elif route [i][0] == route [i-1][0] :
 			if route [i][0] != route [i+1][0] :
-				new_coord = route [i]
-				c.append(new_coord)  
+				new_p = route [i]
+				c.append(new_p)
 		elif route [i][1] == route [i-1][1] :
 			if route [i][1] != route [i+1][1] :
-				new_coord = route [i]
-				c.append(new_coord)    
+				new_p = route [i]            
+				c.append(new_p)  
 		elif route [i][0]-1 == route [i-1][0] and route [i][1]-1 == route [i-1][1]:  
 			if route [i][0]+1 != route [i+1][0] or  route [i][1]+1 != route [i+1][1]:
-				new_coord = route [i]
-				c.append(new_coord)  
+				new_p = route [i]
+				c.append(new_p)
 	c.append(route [len (route)-1])
-	return c
+	c2=menos_p(c)
+	return  c2
 
-def coordenates(route,width,height):  
+def menos_p (esq):
+	c2=esq[:]
+	menor = 10
+	for i in range(1,len(esq)-1):
+		if esq[i-1][0] ==esq[i][0] and esq[i][1] ==esq[i+1][1]:
+			if  numpy.sqrt((esq[i-1][0]-esq[i+1][0])**2 + (esq[i-1][1]-esq[i+1][1])**2) <menor:
+				c2.remove(esq[i])
+		elif esq[i-1][1] ==esq[i][1] and esq[i][0] ==esq[i+1][0]:
+			if  numpy.sqrt((esq[i-1][0]-esq[i+1][0])**2 + (esq[i-1][1]-esq[i+1][1])**2) <menor:
+				c2.remove(esq[i])
+		elif esq[i+1][1] ==esq[i][1] or esq[i+1][0] ==esq[i][0]:
+			if  numpy.sqrt((esq[i+1][0]-esq[i][0])**2 + (esq[i+1][1]-esq[i][1])**2) <2:
+				c2.remove(esq[i])
+	c2 = depurar_coord(c2)
+	return c2
+
+def depurar_coord(esq):
+	c3 = esq[:]
+	menor = 10
+	for i in range(1,len(esq)-1):
+		if  numpy.sqrt((esq[i][0]-esq[i+1][0])**2 + (esq[i][1]-esq[i+1][1])**2) <menor:
+			sentinela = numpy.random.randint(1,4)
+			if sentinela %2 !=0:
+				c3.remove (esq[i])
+	return c3
+
+def convertir (route, width,height):
 	x_center = width / 2
 	y_center = height / 2
 	x_len = 30
 	y_len = 40
-	x_scale = x_len  / width 
-	y_scale = y_len  / height
-	final_coordenates=[]   
-	for i in range (1,len (route) -1):      
-		if route [i][0] == route [i-1][0] :
-			if route [i][0] != route [i+1][0] :
-				new_coord = []
-				new_coord.append ( (route [i][0] - x_center) * x_scale )
-				new_coord.append (( route [i][1] - y_center) * y_scale )
-				final_coordenates.append (new_coord)  
-		elif route [i][1] == route [i-1][1] :
-			if route [i][1] != route [i+1][1] :
-				new_coord = []
-				new_coord.append ( (route [i][0] - x_center) * x_scale )
-				new_coord.append (( route [i][1] - y_center) * y_scale )
-				final_coordenates.append (new_coord)  
-		elif route [i][0]-1 == route [i-1][0] and route [i][1]-1 == route [i-1][1]:  
-			if route [i][0]+1 != route [i+1][0] or  route [i][1]+1 != route [i+1][1]:
-				new_coord = []
-				new_coord.append ( (route [i][0] - x_center) * x_scale )
-				new_coord.append (( route [i][1] - y_center) * y_scale )
-				final_coordenates.append (new_coord)
-
-	final_coordenates.append ([( (route [len (route)-1][0] - x_center) * x_scale ) , (( route [len (route)-1][1] - y_center) * y_scale )])   
+	x_scale = round (x_len  / width , 3) 
+	y_scale = round (y_len  / height , 3)
+	final_coordenates=[] 
+	for i in range(len(route)):
+		new_coord = []
+		new_coord.append ( (route [i][0] - x_center) * x_scale )
+		new_coord.append (( route [i][1] - y_center) * y_scale )
+		final_coordenates.append (new_coord)
 	return final_coordenates
 
 def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
@@ -373,7 +373,6 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 	#print("final",x_final,y_final)
 	return x_inicial,y_inicial,x_final,y_final
 
-
 def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	matrixMap=numpy.ones([width,height])
 	RGBMap=[]
@@ -398,6 +397,8 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 				RGB = [255,0,0,255] #Red
 			elif matrixMap[i,j]==3: 
 				RGB = [0,255,0,255] #Green
+			elif matrixMap[i,j]==4: 
+				RGB = [0,0,255,255] #Blue
 			
 			file.append(RGB)
 		RGBMap.append(file)
@@ -425,20 +426,33 @@ def inicio_fin(coordenadas):
 	print("-----------------------------------------------------")
 	global pub
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen2.png"
+	ruta = scriptDir + "/imagen5.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
 	height, width = gridmap.shape
-	# coordenadas
+	
 	x_ini = coordenadas.poses[0].position.x    #toca crear el mensaje
 	y_ini = - coordenadas.poses[0].position.y    #toca crear el mensaje
 	x_fin = coordenadas.poses[1].position.x     #toca crear el mensaje
 	y_fin = - coordenadas.poses[1].position.y     #toca crear el mensaje
+	inicial_m=(x_ini,y_ini)
+	final_m=(x_fin,y_fin)
+
+	x_inicial_m = float(inicial_m[0])
+	y_inicial_m = float(inicial_m[1])
+	x_final_m  = float (final_m[0])
+	y_final_m   = float (final_m[1])
+	x_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [0]
+	y_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [1]
+	x_final = pixels([x_final_m,y_final_m],height, width) [0]
+	y_final = pixels([x_final_m,y_final_m],height, width) [1]
+
+	# coordenadas
+
 	# Revisar si estan fuera de rango
-	if not fuera_rango(x_ini,y_ini,x_fin,y_fin,width,height):
+	if not fuera_rango(x_inicial,y_inicial,x_final,y_final,width,height):
     	#cambiar las coordenadas de metros a pixeles   
-		inicial_m=(x_ini,y_ini)
-		final_m=(x_fin,y_fin)
+		
 		print(f"Inicio:({x_ini},{-y_ini})\nFin:({x_fin},{-y_fin})")
 		ruta=configuration_method(inicial_m,final_m)
 		print("*Finalizado")
@@ -482,8 +496,6 @@ def planeacion_nodo():
 	rate = rospy.Rate(10)
 	rospy.spin()
 	
-
-
 if __name__ == '__main__':
     try:
         planeacion_nodo()
