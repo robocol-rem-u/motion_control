@@ -21,3 +21,6 @@ COPY motion.repos /
 WORKDIR /motion_control
 COPY src ./src
 RUN /bin/bash -c '. /opt/ros/melodic/setup.bash; cd /motion_control; catkin build'
+
+# Automatically source the workspace when starting a bash session
+RUN echo "source /motion_control/devel/setup.bash" >> /etc/bash.bashrc
