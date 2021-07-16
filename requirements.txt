@@ -1,3 +1,6 @@
 opencv-python
 rospkg
 pynput
+numpy
+roslib
+os
