@@ -4,7 +4,6 @@ import cv2
 import time
 from heapq import heappop, heappush
 import numpy 
-import matplotlib.pyplot as plt
 from PIL import Image
 global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
 from std_msgs.msg import String
