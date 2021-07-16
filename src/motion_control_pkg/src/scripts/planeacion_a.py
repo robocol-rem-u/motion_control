@@ -496,6 +496,7 @@ def planeacion_nodo():
 	rospy.spin()
 	
 if __name__ == '__main__':
+	print ("Esperando coordenadas.")
     try:
         planeacion_nodo()
     except rospy.ROSInterrupyException:
