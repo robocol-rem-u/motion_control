@@ -25,7 +25,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen5.png"
+	ruta = scriptDir + "/mapa_erc.png"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
@@ -437,7 +437,7 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen5.png"
+	ruta = scriptDir + "/mapa_erc.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
 	height, width = gridmap.shape
