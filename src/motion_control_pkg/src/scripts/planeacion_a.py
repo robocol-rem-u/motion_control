@@ -26,6 +26,12 @@ def configuration_method(inicial_m,final_m):
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
+	# define a threshold, 128 is the middle of black and white in grey scale
+	thresh = 128
+
+	# threshold the image
+	gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)[1]
+
 	gridmap = gridmap/100
 	PROB_FREE = 0.3
 	PROB_OCC = 0.6
