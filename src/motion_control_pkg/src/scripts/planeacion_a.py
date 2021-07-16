@@ -487,7 +487,7 @@ def fuera_rango(x_inicial,y_inicial,x_final,y_final,width,height):
 def planeacion_nodo():
 	#declaración coordenadas iniciales y finales 
 	global pub
-	
+	print ("Esperando coordenadas.")
 	rospy.init_node('Planeacion', anonymous=True)  # Inicia el nodo teleop
 	#pub = rospy.Publisher('/robocol/ruta', numpy_nd_msg(Float32MultiArray), queue_size=1)    #toca modificar los mensajes 
 	pub = rospy.Publisher('Robocol/MotionControl/ruta', numpy_msg(Floats),queue_size=10)
@@ -496,7 +496,7 @@ def planeacion_nodo():
 	rospy.spin()
 	
 if __name__ == '__main__':
-	print ("Esperando coordenadas.")
+	
     try:
         planeacion_nodo()
     except rospy.ROSInterrupyException:
