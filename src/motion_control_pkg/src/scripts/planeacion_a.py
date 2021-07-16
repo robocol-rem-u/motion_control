@@ -5,6 +5,8 @@ import time
 from heapq import heappop, heappush
 import numpy 
 from PIL import Image
+import cv_bridge
+from std_msgs import msg
 global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
 from std_msgs.msg import String
 from rospy.numpy_msg import numpy_msg
@@ -17,6 +19,9 @@ import os
 roslib.load_manifest('rospy')
 from std_msgs.msg import MultiArrayDimension
 from rospy_tutorials.msg import Floats
+#messages for image publisher
+from sensor_msgs.msg import Image as Image2
+from cv_bridge import CvBridge, CvBridgeError
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
@@ -430,6 +435,7 @@ def pixels (coord,height, width) :
 def inicio_fin(coordenadas):
 	print("-----------------------------------------------------")
 	global pub
+	global img_pub
 	scriptDir = os.path.dirname(__file__)
 	ruta = scriptDir + "/imagen5.png"
 	gridmap = cv2.imread(ruta,0) 
@@ -473,9 +479,19 @@ def inicio_fin(coordenadas):
 		image = cv2.imread(ruta)
 		window_name = 'image'
 		resized = cv2.resize(image,(300,500),interpolation = cv2.INTER_AREA)
-		cv2.imshow(window_name, resized)
-		cv2.waitKey(0)  
-		cv2.destroyAllWindows()
+		# cv2.imshow(window_name, resized)
+		# cv2.waitKey(0)  
+		# cv2.destroyAllWindows()
+
+		# publicar imagen a topico para visualizar en rviz
+		bridge = CvBridge()
+		try:
+			image_message = bridge.cv2_to_imgmsg(image, encoding= 'passthrough')
+			img_pub.publish(image_message)
+
+		except CvBridgeError as e:
+			print(e)
+			
 		print("*Waiting for new coordenates")
 
 	else:
@@ -493,10 +509,12 @@ def fuera_rango(x_inicial,y_inicial,x_final,y_final,width,height):
 def planeacion_nodo():
 	#declaración coordenadas iniciales y finales 
 	global pub
+	global img_pub
 	print ("Esperando coordenadas.")
 	rospy.init_node('Planeacion', anonymous=True)  # Inicia el nodo teleop
 	#pub = rospy.Publisher('/robocol/ruta', numpy_nd_msg(Float32MultiArray), queue_size=1)    #toca modificar los mensajes 
 	pub = rospy.Publisher('Robocol/MotionControl/ruta', numpy_msg(Floats),queue_size=10)
+	img_pub = rospy.Publisher('Robocol/MotionControl/imagen', Image2, queue_size=1)
 	rospy.Subscriber('/Robocol/Inicio_fin', PoseArray, inicio_fin)
 	rate = rospy.Rate(10)
 	rospy.spin()
