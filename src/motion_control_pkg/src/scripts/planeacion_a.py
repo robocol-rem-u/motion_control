@@ -27,18 +27,35 @@ def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
 	#ruta = scriptDir + "/mapa_erc.png"
 	ruta = scriptDir + "/Mapa.jpg"
-	img = Image.open(ruta).convert('RGB')
-	pixel=img.load()
+	#ruta = scriptDir + "/imagen2.png"
+
+	#img = Image.open(ruta).convert('RGB')
+	pixel = cv2.imread(ruta,1) 
+	print(pixel.shape)
+	#cv2.imshow("antes", pixel)
+	#cv2.waitKey(0)
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
+	print(gridmap.shape)
+	print(type(gridmap))
 	# define a threshold, 128 is the middle of black and white in grey scale
-	#thresh = 10
+	thresh = 100
 
 	# threshold the image
-	#aux,gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)
+	ignorar,gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)
 
-	gridmap = gridmap/100
+	#img = gridmap.convert('RGB')
+	#pixel = img.load()
+
+	#print(gridmap.shape)
+
+	#cv2.imshow("antes", gridmap)
+	#cv2.waitKey(0)
+	#gridmap = gridmap/100
+	#print(gridmap.shape)
+	#cv2.imshow("despues", gridmap)
+	#cv2.waitKey(0)
 	PROB_FREE = 0.3
 	PROB_OCC = 0.6
 	
@@ -67,7 +84,7 @@ def configuration_method(inicial_m,final_m):
 	Manhattan_heuristic = 0 # DO NOT CHANGE
 	Eclidian_heuristic = 1 # DO NOT CHANGE
 	heuristica_propia = 2 # DO NOT CHANGE
-	heuristica = 2 #seleccion heuristica 
+	heuristica = Eclidian_heuristic #seleccion heuristica 
 
 	graph = gridmap2graph(gridmap,width,height,PROB_FREE)
 	print("* gridmap2graph")
@@ -390,9 +407,9 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	for i in range(width):
 		for j in range(height):
 			if pixel[j,i][0]==255 and pixel[j,i][1]==255 and pixel[j,i][2]==255:
-				matrixMap[i,j]=1
-			else:
 				matrixMap[i,j]=0
+			else:
+				matrixMap[i,j]=1
 	for i in range(len(array_pos)):
 		matrixMap[array_pos[i][1],array_pos[i][0]]=2
 	for i in range(len(esquinas)):
@@ -439,6 +456,7 @@ def inicio_fin(coordenadas):
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
 	ruta = scriptDir + "/Mapa.jpg"
+	#ruta = scriptDir + "/imagen2.png"
 	#ruta = scriptDir + "/mapa_erc.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
