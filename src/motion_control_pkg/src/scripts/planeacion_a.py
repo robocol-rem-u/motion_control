@@ -26,16 +26,17 @@ from cv_bridge import CvBridge, CvBridgeError
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
 	ruta = scriptDir + "/mapa_erc.png"
+	#ruta = scriptDir + "/imagen2.png"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
 	# define a threshold, 128 is the middle of black and white in grey scale
-	thresh = 128
+	thresh = 100
 
 	# threshold the image
-	gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY_INV)[1]
+	aux,gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)
 
 	#gridmap = gridmap/100
 	PROB_FREE = 0.3
@@ -280,8 +281,8 @@ def convertir (route, width,height):
 	final_coordenates=[] 
 	for i in range(len(route)):
 		new_coord = []
-		new_coord.append ( ( (route [i][0] - x_center) * x_scale ) + 14)
-		new_coord.append ( ( (route [i][1] - y_center) * y_scale ) - 2.3)
+		new_coord.append ( ( (route [i][0] - x_center) * x_scale ) + 0)
+		new_coord.append ( ( (route [i][1] - y_center) * y_scale ) - 0)
 		final_coordenates.append (new_coord)
 	return final_coordenates
 
@@ -428,8 +429,8 @@ def pixels (coord,height, width) :
 	y_len = 40
 	x_scale = x_len  / width
 	y_scale = y_len  / height
-	x =  round(((coord[0] + 14) / x_scale) +  x_center) 
-	y =  round(((coord [1] - 2.3) / y_scale ) + y_center)   
+	x =  round(((coord[0] + 0) / x_scale) +  x_center) 
+	y =  round(((coord [1] - 0) / y_scale ) + y_center)   
 	return [x,y]
 
 def inicio_fin(coordenadas):
@@ -437,6 +438,7 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
+	#ruta = scriptDir + "/imagen2.png"
 	ruta = scriptDir + "/mapa_erc.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
