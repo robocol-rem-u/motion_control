@@ -25,7 +25,7 @@ deltaX, deltaY = 0, 0
 
 rho = 0
 auto = 0
-hayRuta = 1 #poner en cero cuando se vaya a probar cn planeacion
+hayRuta = 0 #poner en cero cuando se vaya a probar con planeacion
 ruta = np.array([])
 
 def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
@@ -92,7 +92,7 @@ def main_control():
 	#rospy.Subscriber('Robocol/MotionControl/flag_hayRuta',Bool,hayRuta_callback, tcp_nodelay=True)
 
 	#ruta = np.array([[-0.3,-0.3], [-0.3,0.3]])
-	ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
+	#ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
 
 	vel_robot = Twist()
 
@@ -100,10 +100,11 @@ def main_control():
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
 	beta = -theta - alpha
 
-	K_rho = 0.15
+	K_rho = 0.10
 	K_alpha = 0.4
 	K_beta = -0.0
 
+	auto = True
 
 	while not rospy.is_shutdown():
 		empezarDeNuevo = False
@@ -182,7 +183,19 @@ def main_control():
 							rho = np.sqrt(deltaX**2 + deltaY**2)
 							alpha = -theta + np.arctan2(deltaY, deltaX)
 
+
 							v_vel = K_rho*rho + 0.5 * np.exp(-rho)
+
+							if rho < 0.8:
+								v_vel = (K_rho*(1-0.5))*rho + 0.4 * np.exp(-rho)
+
+							if rho < 0.4:
+								v_vel = (K_rho*(1-0.85))*rho + 0.1 * np.exp(-rho)
+
+							#v_vel = K_rho * np.exp(rho) - K_rho #lento
+							#v_vel = K_rho * np.log(rho/50) + 0.8 
+
+
 							w_vel = K_alpha*alpha + K_beta*beta
 							
 							if alpha <= np.pi/2 and alpha > -np.pi/2:
