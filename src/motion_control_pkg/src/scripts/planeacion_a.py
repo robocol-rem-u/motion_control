@@ -25,13 +25,19 @@ from cv_bridge import CvBridge, CvBridgeError
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen5.png"
+	ruta = scriptDir + "/mapa_erc.png"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
-	gridmap = gridmap/100
+	# define a threshold, 128 is the middle of black and white in grey scale
+	thresh = 128
+
+	# threshold the image
+	gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY_INV)[1]
+
+	#gridmap = gridmap/100
 	PROB_FREE = 0.3
 	PROB_OCC = 0.6
 	
@@ -265,8 +271,8 @@ def depurar_coord(esq):
 	return c3
 
 def convertir (route, width,height):
-	x_center = width / 2
-	y_center = height / 2
+	x_center = (width / 2) + 14
+	y_center = (height / 2) -2.3
 	x_len = 30
 	y_len = 40
 	x_scale = round (x_len  / width , 3) 
@@ -416,8 +422,8 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	return routeMap
 
 def pixels (coord,height, width) :
-	x_center = width / 2
-	y_center = height / 2
+	x_center = (width / 2) + 14
+	y_center = (height / 2) -2.3
 	x_len = 30
 	y_len = 40
 	x_scale = x_len  / width 
@@ -431,7 +437,7 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen5.png"
+	ruta = scriptDir + "/mapa_erc.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
 	height, width = gridmap.shape
