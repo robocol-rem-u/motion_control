@@ -25,7 +25,8 @@ from cv_bridge import CvBridge, CvBridgeError
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen5.png"
+	#ruta = scriptDir + "/imagen5.png"
+	ruta = scriptDir + "/prueba2.png"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
@@ -133,7 +134,7 @@ def heuristic(cell, goal, type,graph):
 	elif type == 2:
 		x1,y1 = cell
 		x2,y2 = goal
-		mu = 27
+		mu = 5
 		puntos = 30
 		penalizacion = 0
 		for i in range(mu):
@@ -265,16 +266,16 @@ def depurar_coord(esq):
 	return c3
 
 def convertir (route, width,height):
-	x_center = width / 2
-	y_center = height / 2
 	x_len = 30
 	y_len = 40
 	x_scale = round (x_len  / width , 3) 
 	y_scale = round (y_len  / height , 3)
+	x_center = width / 2 + 14/x_scale
+	y_center = height / 2 - 2.4/y_scale
 	final_coordenates=[] 
 	for i in range(len(route)):
 		new_coord = []
-		new_coord.append ( (route [i][0] - x_center) * x_scale )
+		new_coord.append ( (route [i][0] - x_center ) * x_scale )
 		new_coord.append (( route [i][1] - y_center) * y_scale )
 		final_coordenates.append (new_coord)
 	return final_coordenates
@@ -416,12 +417,13 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	return routeMap
 
 def pixels (coord,height, width) :
-	x_center = width / 2
-	y_center = height / 2
 	x_len = 30
 	y_len = 40
 	x_scale = x_len  / width 
 	y_scale = y_len  / height
+	x_center = width / 2 + 14/x_scale
+	y_center = height / 2 - 2.4/y_scale
+
 	x =  round((coord[0] / x_scale) +  x_center) 
 	y =  round((coord [1] / y_scale ) + y_center)   
 	return [x,y]
@@ -431,22 +433,23 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/imagen5.png"
+	#ruta = scriptDir + "/imagen5.png"
+	ruta = scriptDir + "/prueba2.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
 	height, width = gridmap.shape
 	
-	x_ini = coordenadas.poses[0].position.x    #toca crear el mensaje
-	y_ini = - coordenadas.poses[0].position.y    #toca crear el mensaje
-	x_fin = coordenadas.poses[1].position.x     #toca crear el mensaje
-	y_fin = - coordenadas.poses[1].position.y     #toca crear el mensaje
+	x_ini = - coordenadas.poses[0].position.x    #toca crear el mensaje
+	y_ini = coordenadas.poses[0].position.y    #toca crear el mensaje
+	x_fin = - coordenadas.poses[1].position.x     #toca crear el mensaje
+	y_fin = coordenadas.poses[1].position.y     #toca crear el mensaje
 	inicial_m=(x_ini,y_ini)
 	final_m=(x_fin,y_fin)
 
 	x_inicial_m = float(inicial_m[0])
 	y_inicial_m = float(inicial_m[1])
 	x_final_m  = float (final_m[0])
-	y_final_m   = float (final_m[1])
+	y_final_m   = float (final_m[1]) 
 	x_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [0]
 	y_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [1]
 	x_final = pixels([x_final_m,y_final_m],height, width) [0]
@@ -458,13 +461,13 @@ def inicio_fin(coordenadas):
 	if not fuera_rango(x_inicial,y_inicial,x_final,y_final,width,height):
     	#cambiar las coordenadas de metros a pixeles   
 		
-		print(f"Inicio:({x_ini},{-y_ini})\nFin:({x_fin},{-y_fin})")
+		print(f"Inicio:({-x_ini},{y_ini})\nFin:({-x_fin},{y_fin})")
 		ruta=configuration_method(inicial_m,final_m)
 		print("*Finalizado")
 		ruta2 = []
 		for i in range (len(ruta)):
-			ruta2.append(ruta[i][0])
-			ruta2.append(-ruta[i][1])
+			ruta2.append(-ruta[i][0])
+			ruta2.append(ruta[i][1])
 		r = numpy.array (ruta2,dtype = numpy.float32)
 		pub.publish(r)
 		print ("*Route published")
