@@ -35,7 +35,7 @@ def configuration_method(inicial_m,final_m):
 	thresh = 128
 
 	# threshold the image
-	gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)[1]
+	gridmap = cv2.threshold(gridmap, thresh, 0, cv2.THRESH_BINARY)[1]
 
 	#gridmap = gridmap/100
 	PROB_FREE = 0.3
