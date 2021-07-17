@@ -1,0 +1,11 @@
+<launch>
+    <group>
+        <node pkg="motion_control_pkg" name="planning" type="planeacion_a.py"/>
+    </group>
+    <group>
+        <node pkg="motion_control_pkg" name="teclado" type="teclado.py"/>
+    </group>
+    <group>
+        <node pkg="motion_control_pkg" name="control" type="control_simV2.py"/>
+    </group>
+</launch>

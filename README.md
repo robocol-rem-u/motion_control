@@ -11,7 +11,7 @@ The source code is released for use at Robocol.
 
 **Author: motion control and power subsystems<br />
 Affiliation: [Robocol](https://robocol.uniandes.edu.co/es/)<br />
-Maintainer: Motion control team at Robocol, email@idk.com
+Maintainer: Motion control team at Robocol, robocol@uniandes.edu.co
 
 The motion_control_pkg package has been tested under [ROS] Melodic on Ubuntu 18.04.
 For optimal performance, running a partition with Ubuntu on your machine is recommended, however, a virtual machine is still a good option. 
@@ -82,8 +82,71 @@ your pip version must be >= 19.3. Please upgrade pip with pip install --upgrade 
 Docker is a great way to run an application with all dependencies and libraries bundles together. 
 Make sure to [install Docker](https://docs.docker.com/get-docker/) first. 
 
-This workspace has not been made to work with docker yet
+#### Build image from Dockerfile
+---
+**NOTE**
+If you are using docker on linux, make sure to run the docker commands with sudo. Or, you can configure docker to work without root permisions [here](https://docs.docker.com/engine/install/linux-postinstall/).
 
+It is NOT recommended to build the image from windows, since issues can arise due to file format incompatibility. Working on a *nix system (linux, macos) is recommended.
+
+---
+cd to your working repository, then run docker build to create an image named erc.
+```bash
+cd ~/motion_control
+docker build -t erc .
+```
+spin up a container named motion-container from the image
+```bash
+docker run -it --name motion-container erc
+```
+to start a new terminal inside the container, on a new terminal on your host run:
+```bash
+docker exec -it motion-container bash
+```
+Now let's try to run a node. 
+```bash
+source devel/setup.bash
+roscore
+```
+On a new terminal (inside the container)
+```bash
+source devel/setup.bash
+rosrun motion_control_pkg planeacion_a.py 
+```
+If you wish, you can echo the route topic:
+```bash
+source devel/setup.bash
+rostopic echo /Robocol/MotionControl/ruta 
+```
+Finally, publish to the topic
+```bash
+rostopic pub -1 /Robocol/Inicio_fin geometry_msgs/PoseArray "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+poses:
+- position:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  orientation:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0
+- position:
+    x: 5.0
+    y: 0.0
+    z: 0.0
+  orientation:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0"
+```
+You should see an output on the node and the route topic.
 ## Usage
 In order to create a path given two points in a map, send the coordinates to the control node and have the rover move autonomously towards a goal, follow these steps:
 
@@ -115,7 +178,7 @@ rostopic echo /Robocol/Inicio_fin
 ```
 Now that all the required nodes are running, let's publish a message to create a path:
 ```bash
-rostopic pub /Robocol/Inicio_fin geometry_msgs/PoseArray "header:
+rostopic pub -1 /Robocol/Inicio_fin geometry_msgs/PoseArray "header:
   seq: 0
   stamp:
     secs: 0
@@ -149,7 +212,7 @@ Now, head to the terminal running teclado.py and press k twice, until it display
 ```
 modo: Autonomo
 ```
-If you followed the instructions correctly, leo rover should now be moving on its own! See the terminal running contro_simV2.py to see leo's pose, error and goal.
+If you followed the instructions correctly, leo rover should now be moving on its own! See the terminal running control_simV2.py to see leo's pose, error and goal.
 
 Congratulations! You have succesfully made leo navigate autonomously.
 
@@ -157,31 +220,41 @@ Congratulations! You have succesfully made leo navigate autonomously.
 
 ## Launch files
 
-
+### autonomous_nav.launch
+runs the three main nodes required for autonomous navigation
+```bash
+cd ~/motion_control
+source devel/setup.bash
+roslaunch motion_control_pkg autonomous_nav.launch
+```
 ## Nodes
 
-### ros_package_template
-
-
+### Planeacion
+Contains the A* algorithm to create a path given two poses.
 #### Subscribed Topics
-
+* **`/Robocol/Inicio_fin`** ([PoseArray])
 
 #### Published Topics
+* **`Robocol/MotionControl/ruta`** ([numpy_msg(Floats)])
 
-...
+### rover_teleop
+Controls the robot with the keyboard. Press k to toggle autonomous navigation.
+Run the control node (control_simV2) after this one.
+MANEJA EL ROBOT CON EL TECLADO U OPRIMIENDO K CAMBIA AL CONTROL AUTOMATICO.
+DESPUES DE CORRER ESTE CORRER EL NODO DE control_sim.
+#### Published topics
+* **`/cmd_vel`** ([Twist])
+* **`Robocol/MotionControl/flag_autonomo`** ([Bool])
 
-
-#### Services
-
-
-
-#### Parameters
-
-
-
-### NODE_B_NAME
-
-...
+### control
+Recieves path and moves the robot.
+RECIBE LAS INDICACIONES PARA HACER EL RECORRIDO Y MUEVE AL ROBOT - VERSION 4.
+#### Published topics
+* **`cmd_vel`** ([Twist])
+#### Subscribed Topics
+* **`zed2/odom`** ([Odometry])
+* **`Robocol/MotionControl/flag_autonomo`** ([Bool])
+* **`Robocol/MotionControl/ruta`** ([numpy_msg(Floats)])
 
 
 ## Bugs & Feature Requests

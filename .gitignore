@@ -6,3 +6,4 @@ lib/
 msg_gen/
 srv_gen/
 .catkin_tools/
+.vscode/settings.json
