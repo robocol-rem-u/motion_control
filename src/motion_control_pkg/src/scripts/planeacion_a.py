@@ -25,19 +25,12 @@ from cv_bridge import CvBridge, CvBridgeError
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
-	#ruta = scriptDir + "/mapa_erc.png"
-	ruta = scriptDir + "/Mapa.jpg"
+	ruta = scriptDir + "/imagen5.png"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
-	# define a threshold, 128 is the middle of black and white in grey scale
-	#thresh = 10
-
-	# threshold the image
-	#aux,gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)
-
 	gridmap = gridmap/100
 	PROB_FREE = 0.3
 	PROB_OCC = 0.6
@@ -272,17 +265,17 @@ def depurar_coord(esq):
 	return c3
 
 def convertir (route, width,height):
-	x_center = (width / 2)
-	y_center = (height / 2)
+	x_center = width / 2
+	y_center = height / 2
 	x_len = 30
 	y_len = 40
-	x_scale = round (x_len  / width , 3)
+	x_scale = round (x_len  / width , 3) 
 	y_scale = round (y_len  / height , 3)
 	final_coordenates=[] 
 	for i in range(len(route)):
 		new_coord = []
-		new_coord.append ( ( (route [i][0] - x_center) * x_scale ) + 0)
-		new_coord.append ( ( (route [i][1] - y_center) * y_scale ) - 0)
+		new_coord.append ( (route [i][0] - x_center) * x_scale )
+		new_coord.append (( route [i][1] - y_center) * y_scale )
 		final_coordenates.append (new_coord)
 	return final_coordenates
 
@@ -423,14 +416,14 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	return routeMap
 
 def pixels (coord,height, width) :
-	x_center = (width / 2)
-	y_center = (height / 2)
+	x_center = width / 2
+	y_center = height / 2
 	x_len = 30
 	y_len = 40
-	x_scale = x_len  / width
+	x_scale = x_len  / width 
 	y_scale = y_len  / height
-	x =  round(((coord[0] + 0) / x_scale) +  x_center) 
-	y =  round(((coord [1] - 0) / y_scale ) + y_center)   
+	x =  round((coord[0] / x_scale) +  x_center) 
+	y =  round((coord [1] / y_scale ) + y_center)   
 	return [x,y]
 
 def inicio_fin(coordenadas):
@@ -438,8 +431,7 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/Mapa.jpg"
-	#ruta = scriptDir + "/mapa_erc.png"
+	ruta = scriptDir + "/imagen5.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
 	height, width = gridmap.shape
