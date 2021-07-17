@@ -66,10 +66,10 @@ class Poses_Publish(object):
 				print('   Choose a landmark:')
 				lm = float(input('   > '))
 				try:
-					xlm = self.waypoints[int(lm)-1][0]
-					ylm = self.waypoints[int(lm)-1][1]
+					self.x2 = self.waypoints[int(lm)-1][0]
+					self.y2 = self.waypoints[int(lm)-1][1]
 					print(msg.format(int(lm),xlm,ylm))
-					self.pub_coords(self.glo_x,xlm,self.glo_y,ylm )
+					self.pub_coords(self.glo_x,self.x2,self.glo_y,self.y2)
 				except Exception as e:
 					print('Not a number')
 			elif op == "C":
