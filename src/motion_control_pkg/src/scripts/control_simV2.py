@@ -6,7 +6,7 @@ from geometry_msgs.msg import *
 from std_msgs.msg import Bool
 import sys
 from nav_msgs.msg import Odometry
-from gazebo_msgs.msg import ModelStates
+#from gazebo_msgs.msg import ModelStates
 from tf.transformations import euler_from_quaternion
 
 import roslib
