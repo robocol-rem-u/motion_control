@@ -25,20 +25,20 @@ from cv_bridge import CvBridge, CvBridgeError
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
-	ruta = scriptDir + "/mapa_erc.png"
-	#ruta = scriptDir + "/imagen2.png"
+	#ruta = scriptDir + "/mapa_erc.png"
+	ruta = scriptDir + "/Mapa.jpg"
 	img = Image.open(ruta).convert('RGB')
 	pixel=img.load()
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
 	# define a threshold, 128 is the middle of black and white in grey scale
-	thresh = 100
+	#thresh = 10
 
 	# threshold the image
-	aux,gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)
+	#aux,gridmap = cv2.threshold(gridmap, thresh, 255, cv2.THRESH_BINARY)
 
-	#gridmap = gridmap/100
+	gridmap = gridmap/100
 	PROB_FREE = 0.3
 	PROB_OCC = 0.6
 	
@@ -438,8 +438,8 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
-	#ruta = scriptDir + "/imagen2.png"
-	ruta = scriptDir + "/mapa_erc.png"
+	ruta = scriptDir + "/Mapa.jpg"
+	#ruta = scriptDir + "/mapa_erc.png"
 	gridmap = cv2.imread(ruta,0) 
 	gridmap = gridmap/100
 	height, width = gridmap.shape
