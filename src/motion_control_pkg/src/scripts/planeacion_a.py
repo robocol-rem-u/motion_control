@@ -271,8 +271,8 @@ def depurar_coord(esq):
 	return c3
 
 def convertir (route, width,height):
-	x_center = width / 2
-	y_center = height / 2
+	x_center = (width / 2) + 14
+	y_center = (height / 2) -2.3
 	x_len = 30
 	y_len = 40
 	x_scale = round (x_len  / width , 3) 
@@ -422,8 +422,8 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	return routeMap
 
 def pixels (coord,height, width) :
-	x_center = width / 2
-	y_center = height / 2
+	x_center = (width / 2) + 14
+	y_center = (height / 2) -2.3
 	x_len = 30
 	y_len = 40
 	x_scale = x_len  / width 
