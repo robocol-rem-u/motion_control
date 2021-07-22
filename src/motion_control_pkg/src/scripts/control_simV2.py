@@ -25,7 +25,7 @@ deltaX, deltaY = 0, 0
 
 rho = 0
 auto = 0
-hayRuta = 0 #poner en cero cuando se vaya a probar con planeacion
+hayRuta = 1 #poner en cero cuando se vaya a probar con planeacion
 ruta = np.array([])
 
 def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
@@ -85,6 +85,10 @@ def main_control():
 	rospy.init_node('control', anonymous=True) #Inicio nodo
 
 	pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+	pub_pos_status = rospy.Publisher('Robocol/MotionControl/pos', Twist, queue_size=10)
+	pub_vel_status = rospy.Publisher('Robocol/MotionControl/cmd_vel', Twist, queue_size=10)
+	pub_rho_status = rospy.Publisher('Robocol/MotionControl/rho', Float32, queue_size=10)
+
 	rate = rospy.Rate(10) #10hz
 	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
 	rospy.Subscriber('Robocol/MotionControl/flag_autonomo',Bool,habilitarMov, tcp_nodelay=True)
@@ -92,9 +96,10 @@ def main_control():
 	#rospy.Subscriber('Robocol/MotionControl/flag_hayRuta',Bool,hayRuta_callback, tcp_nodelay=True)
 
 	#ruta = np.array([[-0.3,-0.3], [-0.3,0.3]])
-	#ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
+	ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
 
 	vel_robot = Twist()
+	pos_robot = Twist()
 
 	rho = np.sqrt(endPos[0]**2 + endPos[1]**2)
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
@@ -114,7 +119,8 @@ def main_control():
 		vel_robot.linear.y = 0
 		vel_robot.angular.z = 0
 		pub.publish(vel_robot)
-		
+		pub_vel_status.publish(vel_robot)
+
 		v_x = 0
 		v_y = 0
 		v_omega = 0
@@ -122,6 +128,11 @@ def main_control():
 		print('Hay ruta?  ' + ('Si' if hayRuta == 1 else 'No'))
 		
 		print('Ruta: ' + str(ruta))
+
+		pos_robot.linear.x = round(pos_x,3)
+		pos_robot.linear.y = round(pos_y,3)
+		pos_robot.angular.z = round(theta,3)
+		pub_pos_status.publish(pos_robot)
 
 		while hayRuta == 1:
 
@@ -139,6 +150,11 @@ def main_control():
 				alpha = -theta + np.arctan2(deltaY, deltaX)
 
 				beta = 0
+
+				pos_robot.linear.x = round(pos_x,3)
+				pos_robot.linear.y = round(pos_y,3)
+				pos_robot.angular.z = round(theta,3)
+				pub_pos_status.publish(pos_robot)
 
 				empezarDeNuevo = True
 				while empezarDeNuevo == True:
@@ -165,6 +181,14 @@ def main_control():
 							vel_robot.linear.y = 0
 							vel_robot.angular.z = v_omega
 							pub.publish(vel_robot)
+							pub_vel_status.publish(vel_robot)
+							
+
+							pos_robot.linear.x = round(pos_x,3)
+							pos_robot.linear.y = round(pos_y,3)
+							pos_robot.angular.z = round(theta,3)
+							pub_pos_status.publish(pos_robot)
+
 						else:
 							print('Estamos en modo manual.')
 							rate.sleep()
@@ -213,7 +237,16 @@ def main_control():
 							vel_robot.angular.z = v_omega
 							#vel_robot.angular.z = 0
 							pub.publish(vel_robot)
-							#rate.sleep()
+							pub_vel_status.publish(vel_robot) #Se publica la velocidad del robot a status
+							pub_rho_status.publish(rho) #Se publica el rho del robot a status
+
+							#Se publica la posicion del robot a status
+							pos_robot.linear.x = round(pos_x,3)
+							pos_robot.linear.y = round(pos_y,3)
+							pos_robot.angular.z = round(theta,3)
+							pub_pos_status.publish(pos_robot)
+
+							rate.sleep()
 						else:
 							while auto == 1:
 								#print('auto: ' + str(auto))
@@ -228,6 +261,13 @@ def main_control():
 				vel_robot.linear.y = v_y
 				vel_robot.angular.z = v_omega
 				pub.publish(vel_robot)
+				pub_vel_status.publish(vel_robot)
+
+				#Se publica la posicion del robot a status
+				pos_robot.linear.x = round(pos_x,3)
+				pos_robot.linear.y = round(pos_y,3)
+				pos_robot.angular.z = round(theta,3)
+				pub_pos_status.publish(pos_robot)
 			else:
 				print('Estamos en modo manual.')
 
