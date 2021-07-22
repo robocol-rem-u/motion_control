@@ -85,8 +85,10 @@ def main_control():
 
 	pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 	pub_pos_status = rospy.Publisher('Robocol/MotionControl/pos', Twist, queue_size=10)
+	pub_pos_final_status = rospy.Publisher('Robocol/MotionControl/pos_final', Twist, queue_size=10)
 	pub_vel_status = rospy.Publisher('Robocol/MotionControl/cmd_vel', Twist, queue_size=10)
 	pub_rho_status = rospy.Publisher('Robocol/MotionControl/rho', Float32, queue_size=10)
+
 
 	rate = rospy.Rate(10) #10hz
 	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
@@ -99,6 +101,8 @@ def main_control():
 
 	vel_robot = Twist()
 	pos_robot = Twist()
+	pos_final_robot = Twist()
+
 
 	rho = np.sqrt(endPos[0]**2 + endPos[1]**2)
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
@@ -133,7 +137,15 @@ def main_control():
 		pos_robot.angular.z = round(theta,3)
 		pub_pos_status.publish(pos_robot)
 
+
+		pos_final_robot.linear.x = round(endPos[0],3)
+		pos_final_robot.linear.y = round(endPos[1],3)
+		pos_final_robot.angular.z = round(endPos[2],3)
+		pub_pos_final_status.publish(pos_final_robot)
+
+		
 		while hayRuta == 1:
+			pos_final_robot.linear.z = 0 #Indica que no ha llegado al destino.
 
 			for coord in ruta:
 				coord_x = coord[0]
@@ -154,6 +166,11 @@ def main_control():
 				pos_robot.linear.y = round(pos_y,3)
 				pos_robot.angular.z = round(theta,3)
 				pub_pos_status.publish(pos_robot)
+
+				pos_final_robot.linear.x = round(endPos[0],3)
+				pos_final_robot.linear.y = round(endPos[1],3)
+				pos_final_robot.angular.z = round(endPos[2],3)
+				pub_pos_final_status.publish(pos_final_robot)
 
 				empezarDeNuevo = True
 				while empezarDeNuevo == True:
@@ -187,6 +204,11 @@ def main_control():
 							pos_robot.linear.y = round(pos_y,3)
 							pos_robot.angular.z = round(theta,3)
 							pub_pos_status.publish(pos_robot)
+
+							pos_final_robot.linear.x = round(endPos[0],3)
+							pos_final_robot.linear.y = round(endPos[1],3)
+							pos_final_robot.angular.z = round(endPos[2],3)
+							pub_pos_final_status.publish(pos_final_robot)
 
 						else:
 							print('Estamos en modo manual.')
@@ -245,6 +267,13 @@ def main_control():
 							pos_robot.angular.z = round(theta,3)
 							pub_pos_status.publish(pos_robot)
 
+
+							pos_final_robot.linear.x = round(endPos[0],3)
+							pos_final_robot.linear.y = round(endPos[1],3)
+							pos_final_robot.angular.z = round(endPos[2],3)
+							pub_pos_final_status.publish(pos_final_robot)
+
+
 							rate.sleep()
 						else:
 							while auto == 1:
@@ -267,6 +296,14 @@ def main_control():
 				pos_robot.linear.y = round(pos_y,3)
 				pos_robot.angular.z = round(theta,3)
 				pub_pos_status.publish(pos_robot)
+
+
+				pos_final_robot.linear.x = round(endPos[0],3)
+				pos_final_robot.linear.y = round(endPos[1],3)
+				pos_final_robot.angular.z = round(endPos[2],3)
+				pos_final_robot.linear.z = 1 #Indica que ya ha llegado al destino.
+				pub_pos_final_status.publish(pos_final_robot)
+
 			else:
 				print('Estamos en modo manual.')
 
