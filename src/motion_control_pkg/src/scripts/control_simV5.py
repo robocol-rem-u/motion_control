@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 import rospy
 import numpy as np
+import sys
+import time
+import roslib
 from std_msgs.msg import String, Float32MultiArray, Float32
 from geometry_msgs.msg import *
 from std_msgs.msg import Bool
-import sys
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
-
-import roslib
+from termcolor import colored, cprint
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 
@@ -24,7 +25,7 @@ deltaX, deltaY = 0, 0
 
 rho = 0
 auto = 0
-hayRuta = 0 #poner en cero cuando se vaya a probar con planeacion
+hayRuta = 1 #poner en cero cuando se vaya a probar con planeacion
 ruta = np.array([])
 
 def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
@@ -44,9 +45,6 @@ def position_callback(msg): #Me regresa la posicion en el marco inercial del rob
 	orientation_list = [orC_x, orC_y, orC_z, orC_w]
 	(roll, pitch,theta) = euler_from_quaternion(orientation_list)
 
-def planeacion_callback(ruta):
-	pass
-	
 
 def habilitarMov(msg): #Me indica si debo mover el robot autonomamente o no
 	global auto
@@ -70,11 +68,6 @@ def ruta_callback(msg):
 	print(len(ruta))
 
 
-# def hayRuta_callback(msg): #Me indica si ya hay ruta o no
-# 	global hayRuta
-# 	hayRuta = msg.data
-# 	print('hayRuta: ' + str(auto))
-
 #Funcion principal de movimiento
 def main_control():
 	global pos_x, pos_y, theta, deltaX, deltaY, rho, rate, auto, hayRuta, ruta
@@ -91,7 +84,7 @@ def main_control():
 	#rospy.Subscriber('Robocol/MotionControl/flag_hayRuta',Bool,hayRuta_callback, tcp_nodelay=True)
 
 	#ruta = np.array([[-0.3,-0.3], [-0.3,0.3]])
-	#ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
+	ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
 
 	vel_robot = Twist()
 
@@ -118,9 +111,9 @@ def main_control():
 		v_y = 0
 		v_omega = 0
 
-		print('Hay ruta?  ' + ('Si' if hayRuta == 1 else 'No'))
-		
-		print('Ruta: ' + str(ruta))
+		print('Hay ruta?  ' + (colored('Si','green') if hayRuta == 1 else 'No'))
+		print('Ruta: ')
+		print(str(ruta))
 
 		while hayRuta == 1:
 
@@ -143,7 +136,10 @@ def main_control():
 				while empezarDeNuevo == True:
 					while abs(alpha) > 0.05:
 						if auto == True:
-							print('EndPos: ' + str(endPos[0]) + ' ' + str(endPos[1]) + ' ' + str(round(endPos[2],3)) + ' | rho: ' + str(round(rho,3)) + ' | ALFA: ' + str(round(alpha,3)) + ' | Pose: ' + str(round(pos_x,3)) + ', ' + str(round(pos_y,3)) + ', ' + str(round(theta,3)))
+							print('EndPos: ' + str(endPos[0]) + ' ' + str(endPos[1]) + ' ' + str(round(endPos[2],3)) + ' | rho: ' + str(round(rho,3)) + colored(' | ALFA: ','green') + str(round(alpha,3)) + ' | Pose: ' + str(round(pos_x,3)) + ', ' + str(round(pos_y,3)) + ', ' + str(round(theta,3)))
+							sys.stdout.write("\033[K") # Clear to the end of line
+							sys.stdout.write("\033[F") # Cursor up one line
+							time.sleep(1)
 							deltaX = endPos[0] - pos_x
 							deltaY = endPos[1] - pos_y
 							deltatheta = endPos[2] - theta
@@ -173,8 +169,10 @@ def main_control():
 					while rho > 0.05 and empezarDeNuevo == False:
 						if auto == True:
 							
-							print('EndPos: ' + str(endPos[0]) + ' ' + str(endPos[1]) + ' ' + str(round(endPos[2],3)) + ' | RHO: ' + str(round(rho,3)) + ' | alfa: ' + str(round(alpha,3)) + ' | Pose: ' + str(round(pos_x,3)) + ', ' + str(round(pos_y,3)) + ', ' + str(round(theta,3)))#+ ' | v_omega: ' + str(round(v_omega,3)))
-
+							print('EndPos: ' + str(endPos[0]) + ' ' + str(endPos[1]) + ' ' + str(round(endPos[2],3)) + colored(' | RHO: ','green') + str(round(rho,3)) + ' | alfa: ' + str(round(alpha,3)) + ' | Pose: ' + str(round(pos_x,3)) + ', ' + str(round(pos_y,3)) + ', ' + str(round(theta,3)))#+ ' | v_omega: ' + str(round(v_omega,3)))
+							sys.stdout.write("\033[K") # Clear to the end of line
+							sys.stdout.write("\033[F") # Cursor up one line
+							time.sleep(1)
 							deltaX = endPos[0] - pos_x
 							deltaY = endPos[1] - pos_y
 							deltatheta = endPos[2] - theta
