@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import rospy
+import sys
+import time
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 from pynput.keyboard import Key, Listener, Controller
@@ -38,11 +40,15 @@ def on_press(key):
 		if modo == 0:
 			modo = 1
 			flag_autonomo = False
-			print('modo: ' + ('Teleop' if modo == 1 else 'Autonomo'))
+			print('\r modo: ' + ('Teleop..' if modo == 1 else 'Autonomo'))
+			sys.stdout.write("\033[F") # Cursor up one line
+			time.sleep(1)
 		else:
 			modo = 0
 			flag_autonomo = True
-			print('modo: ' + ('Teleop' if modo == 1 else 'Autonomo'))
+			print('\r modo: ' + ('Teleop..' if modo == 1 else 'Autonomo'))
+			sys.stdout.write("\033[F") # Cursor up one line
+			time.sleep(1)
 
 		pub_flagAuto.publish(flag_autonomo)
 
