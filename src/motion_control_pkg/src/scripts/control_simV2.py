@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 import rospy
 import numpy as np
+import sys
+import time
+#import roslib
 from std_msgs.msg import String, Float32MultiArray, Float32
 from geometry_msgs.msg import *
 from std_msgs.msg import Bool
-import sys
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
-
-import roslib
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 
@@ -177,6 +177,9 @@ def main_control():
 					while abs(alpha) > 0.05:
 						if auto == True:
 							print('EndPos: ' + str(endPos[0]) + ' ' + str(endPos[1]) + ' ' + str(round(endPos[2],3)) + ' | rho: ' + str(round(rho,3)) + ' | ALFA: ' + str(round(alpha,3)) + ' | Pose: ' + str(round(pos_x,3)) + ', ' + str(round(pos_y,3)) + ', ' + str(round(theta,3)))
+							sys.stdout.write("\033[K") # Clear to the end of line
+							sys.stdout.write("\033[F") # Cursor up one line
+							time.sleep(1)
 							deltaX = endPos[0] - pos_x
 							deltaY = endPos[1] - pos_y
 							deltatheta = endPos[2] - theta
@@ -220,7 +223,9 @@ def main_control():
 						if auto == True:
 							
 							print('EndPos: ' + str(endPos[0]) + ' ' + str(endPos[1]) + ' ' + str(round(endPos[2],3)) + ' | RHO: ' + str(round(rho,3)) + ' | alfa: ' + str(round(alpha,3)) + ' | Pose: ' + str(round(pos_x,3)) + ', ' + str(round(pos_y,3)) + ', ' + str(round(theta,3)))#+ ' | v_omega: ' + str(round(v_omega,3)))
-
+							sys.stdout.write("\033[K") # Clear to the end of line
+							sys.stdout.write("\033[F") # Cursor up one line
+							time.sleep(1)
 							deltaX = endPos[0] - pos_x
 							deltaY = endPos[1] - pos_y
 							deltatheta = endPos[2] - theta

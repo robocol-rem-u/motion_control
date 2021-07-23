@@ -9,14 +9,14 @@ from geometry_msgs.msg import *
 from std_msgs.msg import Bool
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
-from termcolor import colored, cprint
+from termcolor import colored
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
 
 global pos_x, pos_y, theta, deltaX, deltaY
 global rate, rho, auto, ruta, hayRuta
 
-#RECIBE LAS INDICACIONES PARA HACER EL RECORRIDO Y MUEVE AL ROBOT - VERSION 4
+#RECIBE LAS INDICACIONES PARA HACER EL RECORRIDO Y MUEVE AL ROBOT - VERSION 5 Colores
 #ROBOCOL
 
 pos_x, pos_y, theta = 0, 0, 0
