@@ -2,8 +2,8 @@
 import rospy
 import sys
 import time
-from geometry_msgs.msg import Twist
-from std_msgs.msg import Float32
+from geometry_msgs.msg import *
+from std_msgs.msg import *
 #from termcolor import colored
 
 #ROBOCOL
@@ -50,6 +50,9 @@ def pos_final_callback(msg):
 	theta_final_info = msg.angular.z
 	llegoAlaMeta = msg.linear.z
 
+def probe_callback(msg):
+	pass
+
 
 def info_status():
 	global vel_lin_x_info, vel_ang_z_info, rho_info, pos_x_info_anterior, pos_y_info_anterior, theta_info_anterior, cont, pos_x_info, pos_y_info, theta_info, pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta
@@ -60,13 +63,14 @@ def info_status():
 	rospy.Subscriber("Robocol/MotionControl/rho", Float32, rho_callback, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/pos", Twist, pos_callback, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/pos_final", Twist, pos_final_callback, tcp_nodelay=True)
-
+	rospy.Subscriber('probe_deployment_unit/probes_dropped', UInt8, probe_callback)
 	rate = rospy.Rate(10)
 
 
 	while not rospy.is_shutdown():
-		mensaje = 'vel. lin. x: ' + str(round(vel_lin_x_info,3)) + ' | vel. ang. z: ' + str(round(vel_ang_z_info,3)) + '\n'
-		mensaje = mensaje + 'rho: ' + str(round(rho_info,3)) + '\n'
+		mensaje = '______________________________ \n'
+		mensaje = mensaje + 'Vel. lin. x: ' + str(round(vel_lin_x_info,3)) + ' | Vel. ang. z: ' + str(round(vel_ang_z_info,3)) + '\n'
+		mensaje = mensaje + 'Rho: ' + str(round(rho_info,3)) + '\n'
 		mensaje = mensaje + 'pos. x: ' + str(pos_x_info) + ' | pos. y: ' + str(pos_y_info) + ' | theta: ' + str(theta_info) + '\n'
 		mensaje = mensaje + 'pos. final x: ' + str(pos_x_final_info) + ' | pos. final y: ' + str(pos_y_final_info) + ' | theta final: ' + str(theta_final_info) + '\n'
 		

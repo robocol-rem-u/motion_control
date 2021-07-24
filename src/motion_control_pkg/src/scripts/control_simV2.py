@@ -26,6 +26,7 @@ rho = 0
 auto = 0
 hayRuta = 1 #poner en cero cuando se vaya a probar con planeacion
 ruta = np.array([])
+panic = False
 
 def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
 	global rate, pos_x, pos_y, theta
@@ -44,8 +45,8 @@ def position_callback(msg): #Me regresa la posicion en el marco inercial del rob
 	orientation_list = [orC_x, orC_y, orC_z, orC_w]
 	(roll, pitch,theta) = euler_from_quaternion(orientation_list)
 
-def planeacion_callback(ruta):
-	pass
+def panic_callback(msg):
+	panic = msg.data
 	
 
 def habilitarMov(msg): #Me indica si debo mover el robot autonomamente o no
@@ -94,7 +95,7 @@ def main_control():
 	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
 	rospy.Subscriber('Robocol/MotionControl/flag_autonomo',Bool,habilitarMov, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/ruta", numpy_msg(Floats), ruta_callback, tcp_nodelay=True)
-	#rospy.Subscriber('Robocol/MotionControl/flag_hayRuta',Bool,hayRuta_callback, tcp_nodelay=True)
+	rospy.Subscriber('Robocol/MotionControl/flag_panic', Bool, panic_callback, tcp_nodelay=True)
 
 	#ruta = np.array([[-0.3,-0.3], [-0.3,0.3]])
 	ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
@@ -112,7 +113,7 @@ def main_control():
 	K_alpha = 0.4
 	K_beta = -0.0
 
-	auto = True
+	#auto = True
 
 	while not rospy.is_shutdown():
 		empezarDeNuevo = False
@@ -146,7 +147,7 @@ def main_control():
 		
 		while hayRuta == 1:
 			pos_final_robot.linear.z = 0 #Indica que no ha llegado al destino.
-
+			print('Esperando comando de flag_autonomo...')
 			for coord in ruta:
 				coord_x = coord[0]
 				coord_y = coord[1]
@@ -215,6 +216,9 @@ def main_control():
 
 						else:
 							print('Estamos en modo manual.')
+							sys.stdout.write("\033[K") # Clear to the end of line
+							sys.stdout.write("\033[F") # Cursor up one line
+							time.sleep(1)
 							rate.sleep()
 
 					K_alpha = 0.35
@@ -284,6 +288,9 @@ def main_control():
 							while auto == 1:
 								#print('auto: ' + str(auto))
 								print('Estamos en modo manual.')
+								sys.stdout.write("\033[K") # Clear to the end of line
+								sys.stdout.write("\033[F") # Cursor up one line
+								time.sleep(1)
 								rate.sleep()
 							empezarDeNuevo = True
 			hayRuta = 0
