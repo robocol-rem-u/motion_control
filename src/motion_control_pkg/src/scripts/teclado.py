@@ -41,7 +41,7 @@ def on_press(key):
 		publicar(comando)
 
 	if panic == True:
-		print('Panik Button!!!')
+		print('Boton PANICO')
 		sys.stdout.write("\033[K") # Clear to the end of line
 		sys.stdout.write("\033[F") # Cursor up one line
 		time.sleep(1)

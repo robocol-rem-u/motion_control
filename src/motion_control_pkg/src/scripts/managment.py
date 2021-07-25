@@ -59,7 +59,7 @@ class Poses_Publish(object):
                     self.pub_flagPanic.publish(flag_panic)
                 
             elif op == "D":
-                print(" Deplying probe")
+                print(" Probe droped")
                 self.pubProbe.publish()
                 
 
