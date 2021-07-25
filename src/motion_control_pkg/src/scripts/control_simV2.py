@@ -14,6 +14,7 @@ from rospy_tutorials.msg import Floats
 
 global pos_x, pos_y, theta, deltaX, deltaY
 global rate, rho, auto, ruta, hayRuta
+global K_alpha, K_rho, K_beta, vel_adjust
 
 #RECIBE LAS INDICACIONES PARA HACER EL RECORRIDO Y MUEVE AL ROBOT - VERSION 4
 #ROBOCOL
@@ -27,6 +28,11 @@ auto = 0
 hayRuta = 1 #poner en cero cuando se vaya a probar con planeacion
 ruta = np.array([])
 panic = False
+
+K_rho = 0.10
+K_alpha = 0.4
+K_beta = -0.0
+vel_adjust = 0.0
 
 def position_callback(msg): #Me regresa la posicion en el marco inercial del robot
 	global rate, pos_x, pos_y, theta
@@ -47,7 +53,11 @@ def position_callback(msg): #Me regresa la posicion en el marco inercial del rob
 
 def panic_callback(msg):
 	panic = msg.data
-	
+
+def vel_adjust_callback(msg):
+	global vel_adjust
+	vel_adjust = msg.data	
+	print('Se ajusta la velocidad por: ',round(vel_adjust,3))
 
 def habilitarMov(msg): #Me indica si debo mover el robot autonomamente o no
 	global auto
@@ -70,18 +80,13 @@ def ruta_callback(msg):
 	print(ruta)
 	print(len(ruta))
 
-
-# def hayRuta_callback(msg): #Me indica si ya hay ruta o no
-# 	global hayRuta
-# 	hayRuta = msg.data
-# 	print('hayRuta: ' + str(auto))
-
 #Funcion principal de movimiento
 def main_control():
-	global pos_x, pos_y, theta, deltaX, deltaY, rho, rate, auto, hayRuta, ruta
+	global pos_x, pos_y, theta, deltaX, deltaY, rho, rate, auto, hayRuta, ruta, K_alpha, K_rho, K_beta
 
 	endPos = [0,0,0] #Posicion final por defecto
-
+	print('Starting control node...')
+	print(' ')
 	rospy.init_node('control', anonymous=True) #Inicio nodo
 
 	pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
@@ -96,6 +101,7 @@ def main_control():
 	rospy.Subscriber('Robocol/MotionControl/flag_autonomo',Bool,habilitarMov, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/ruta", numpy_msg(Floats), ruta_callback, tcp_nodelay=True)
 	rospy.Subscriber('Robocol/MotionControl/flag_panic', Bool, panic_callback, tcp_nodelay=True)
+	rospy.Subscriber('Robocol/MotionControl/kp', Float32, vel_adjust_callback, tcp_nodelay=True)
 
 	#ruta = np.array([[-0.3,-0.3], [-0.3,0.3]])
 	ruta = np.array([[2.5,0.019],[1.5,1],[-0.035,0.0189]])
@@ -108,10 +114,6 @@ def main_control():
 	rho = np.sqrt(endPos[0]**2 + endPos[1]**2)
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
 	beta = -theta - alpha
-
-	K_rho = 0.10
-	K_alpha = 0.4
-	K_beta = -0.0
 
 	#auto = True
 
@@ -199,7 +201,7 @@ def main_control():
 							v_omega = w_vel
 							vel_robot.linear.x = 0
 							vel_robot.linear.y = 0
-							vel_robot.angular.z = v_omega
+							vel_robot.angular.z = v_omega +vel_adjust
 							pub.publish(vel_robot)
 							pub_vel_status.publish(vel_robot)
 							
@@ -262,7 +264,7 @@ def main_control():
 								v_omega = 0
 								print('----------------Voy Hacia Atras--------------------V_X: ' + str(round(v_x, 3)))
 							
-							vel_robot.linear.x = v_x 
+							vel_robot.linear.x = v_x + vel_adjust
 							vel_robot.linear.y = v_y
 							vel_robot.angular.z = v_omega
 							#vel_robot.angular.z = 0

@@ -18,6 +18,7 @@ pos_x_info, pos_y_info, theta_info = 0,0,0
 pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta = 0,0,0,0
 probe_cont = 0
 panic = False
+vel_adjust = 0
 
 
 def panic_callback(msg):
@@ -61,6 +62,10 @@ def probe_callback(msg):
 	global probe_cont
 	probe_cont = msg.data
 
+def vel_adjust_callback(msg):
+	global vel_adjust
+	vel_adjust = msg.data
+
 
 def info_status():
 	global vel_lin_x_info, vel_ang_z_info, rho_info, pos_x_info_anterior, pos_y_info_anterior, theta_info_anterior, cont, pos_x_info, pos_y_info, theta_info, pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta, panic
@@ -73,6 +78,8 @@ def info_status():
 	rospy.Subscriber("Robocol/MotionControl/pos_final", Twist, pos_final_callback, tcp_nodelay=True)
 	rospy.Subscriber('probe_deployment_unit/probes_dropped', UInt8, probe_callback)
 	rospy.Subscriber('Robocol/MotionControl/flag_panic', Bool, panic_callback, tcp_nodelay=True)
+	rospy.Subscriber('Robocol/MotionControl/kp', Float32, vel_adjust_callback)
+	
 	rate = rospy.Rate(10)
 
 
@@ -102,6 +109,9 @@ def info_status():
 		else:
 			#print('En movimiento')
 			mensaje = mensaje + 'En movimiento \n'
+		
+		if vel_adjust != 0:
+			mensaje = mensaje + 'La velocidad esta siendo ajustada por: ' + str(round(vel_adjust,3)) + '\n'
 
 		if panic == True:
 			mensaje = mensaje + 'Boton de PANICO \n'

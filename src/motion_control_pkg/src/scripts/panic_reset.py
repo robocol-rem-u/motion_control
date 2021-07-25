@@ -6,7 +6,7 @@ from std_msgs.msg import *
 from nav_msgs.msg import *
 from geometry_msgs.msg import *
 
-#TIENE BOTON DE PANICO, DEPLOY PROBE Y RESET ODOMETRY
+#TIENE BOTON DE PANICO, DEPLOY PROBE, AJUSTAR VELOCIDAD Y RESET ODOMETRY
 #ROBOCOL
 
 class Poses_Publish(object):
@@ -23,6 +23,7 @@ class Poses_Publish(object):
         self.pubProbe = rospy.Publisher('probe_deployment_unit/drop', Empty, queue_size=1)
         self.pub_flagAuto = rospy.Publisher('Robocol/MotionControl/flag_autonomo', Bool, queue_size=1)
         self.pub_flagPanic = rospy.Publisher('Robocol/MotionControl/flag_panic', Bool, queue_size=1)
+        self.pub_kp = rospy.Publisher('Robocol/MotionControl/kp', Float32, queue_size=1)
 
         rospy.on_shutdown(self.kill)
         print('')
@@ -35,6 +36,7 @@ class Poses_Publish(object):
             print("Choose an option:")
             print(" P: Panic Button")
             print(" D: To deploy probe.")
+            print(' V: To adjust velocity.')
             print(" R: To reset odometry.")
             op = raw_input(' > ')
             print(op)
@@ -42,7 +44,7 @@ class Poses_Publish(object):
                 print(' PANIK BUTTON')
                 flag_panic = True
                 self.pub_flagPanic.publish(flag_panic)
-                print('  Stopping Control Node...')
+                print('  Stopping Control Node')
                 flag_autonomo = False
                 self.pub_flagAuto.publish(flag_autonomo)
                 print('  Stopped Robot.')
@@ -54,17 +56,25 @@ class Poses_Publish(object):
                 print('Press P again to resume.')
                 a = raw_input(' > ')
                 if a == 'P' or a == 'p':
-                    print(' RESUMING MOVEMENT')
+                    print(' ENABLING MOVEMENT')
                     flag_panic = False
                     self.pub_flagPanic.publish(flag_panic)
+                    #flag_autonomo = True
+                    #self.pub_flagAuto.publish(flag_autonomo)
                 
-            elif op == "D":
+            elif op == "D" or op == 'd':
                 print(" Probe droped")
                 self.pubProbe.publish()
-                
 
-            elif op == "R":
-                print(' Reseting Odometry...')
+            elif op == 'V' or op == 'v':
+                print(' Input value to reduce or increase velocity. Check Status for actual velocity')
+                print(' Input 0 (zero) to disable...')
+                kp = input(' > ')  
+                self.pub_kp.publish(kp) 
+                print(' VELOCITY ADJUSTED')
+
+            elif op == "R" or op == 'r':
+                print(' Odometry reseted')
                 self.pubResetOdom.publish()
             else:
                 print(' COMMAND NOT RECOGNIZED.')
