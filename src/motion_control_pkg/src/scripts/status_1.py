@@ -13,9 +13,10 @@ theta_info_anterior = 0
 cont = 0
 vel_lin_x_info = 0
 vel_ang_z_info = 0
-rho_info = 0
+rho_info, alpha_info = 0,0
 pos_x_info, pos_y_info, theta_info = 0,0,0
 pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta = 0,0,0,0
+puntos_faltantes_info = 0
 probe_cont = 0
 panic = False
 vel_adjust = 0
@@ -33,6 +34,10 @@ def cmd_vel_callback(msg):
 def rho_callback(msg):
 	global rho_info
 	rho_info = msg.data
+
+def alpha_callback(msg):
+	global alpha_info
+	alpha_info = msg.data
 
 def pos_callback(msg):
 	global pos_x_info_anterior, pos_y_info_anterior, theta_info_anterior, cont, pos_x_info, pos_y_info, theta_info
@@ -52,10 +57,11 @@ def pos_callback(msg):
 
 
 def pos_final_callback(msg):
-	global pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta
+	global pos_x_final_info, pos_y_final_info, theta_final_info, puntos_faltantes_info, llegoAlaMeta
 	pos_x_final_info = msg.linear.x
 	pos_y_final_info = msg.linear.y
 	theta_final_info = msg.angular.z
+	puntos_faltantes_info = msg.angular.x
 	llegoAlaMeta = msg.linear.z
 
 def probe_callback(msg):
@@ -68,12 +74,13 @@ def vel_adjust_callback(msg):
 
 
 def info_status():
-	global vel_lin_x_info, vel_ang_z_info, rho_info, pos_x_info_anterior, pos_y_info_anterior, theta_info_anterior, cont, pos_x_info, pos_y_info, theta_info, pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta, panic
+	global vel_lin_x_info, vel_ang_z_info, rho_info, pos_x_info_anterior, pos_y_info_anterior, theta_info_anterior, cont, pos_x_info, pos_y_info, theta_info, pos_x_final_info, pos_y_final_info, theta_final_info, llegoAlaMeta, panic, puntos_faltantes_info
 
 	rospy.init_node('status', anonymous=True)  # Inicia el nodo status
 
-	rospy.Subscriber("Robocol/MotionControl/cmd_vel", Twist, cmd_vel_callback, tcp_nodelay=True)
+	rospy.Subscriber("cmd_vel", Twist, cmd_vel_callback, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/rho", Float32, rho_callback, tcp_nodelay=True)
+	rospy.Subscriber("Robocol/MotionControl/alpha", Float32, alpha_callback, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/pos", Twist, pos_callback, tcp_nodelay=True)
 	rospy.Subscriber("Robocol/MotionControl/pos_final", Twist, pos_final_callback, tcp_nodelay=True)
 	rospy.Subscriber('probe_deployment_unit/probes_dropped', UInt8, probe_callback)
@@ -86,28 +93,20 @@ def info_status():
 	while not rospy.is_shutdown():
 		mensaje = '______________________________ \n'
 		mensaje = mensaje + 'Vel. lin. x: ' + str(round(vel_lin_x_info,3)) + ' | Vel. ang. z: ' + str(round(vel_ang_z_info,3)) + '\n'
-		mensaje = mensaje + 'Rho: ' + str(round(rho_info,3)) + '\n'
+		mensaje = mensaje + 'Rho: ' + str(round(rho_info,3)) + ' | Alpha: ' + str(round(alpha_info,3)) + '\n'
 		mensaje = mensaje + 'pos. x: ' + str(pos_x_info) + ' | pos. y: ' + str(pos_y_info) + ' | theta: ' + str(theta_info) + '\n'
 		mensaje = mensaje + 'pos. final x: ' + str(pos_x_final_info) + ' | pos. final y: ' + str(pos_y_final_info) + ' | theta final: ' + str(theta_final_info) + '\n'
 		mensaje = mensaje + 'Droped probes: ' + str(probe_cont) + '\n'
-
-		#print('vel. lin. x: ' + str(vel_lin_x_info) + ' | vel. ang. z: ' + str(vel_ang_z_info))
-		#print('rho: ' + str(rho_info))
-		#print('pos. x: ' + str(pos_x_info) + ' | pos. y: ' + str(pos_y_info) + ' | theta: ' + str(theta_info))
-		#print('pos. final x: ' + str(pos_x_final_info) + ' | pos. final y: ' + str(pos_y_final_info) + ' | theta final: ' + str(theta_final_info))
+		mensaje = mensaje + 'Puntos faltantes: ' + str(puntos_faltantes_info) + '\n'
 
 		if (llegoAlaMeta == 1):
-			#print('YA LLEGO A LA META')
 			mensaje = mensaje + 'YA LLEGO A LA META' + '\n'
 		else:
-			#print('No ha llegado')
 			mensaje = mensaje + 'No ha llegado' + '\n'
 
 		if (cont >= 1000):
-			#print('Detenido')
 			mensaje = mensaje + 'Detenido \n'
 		else:
-			#print('En movimiento')
 			mensaje = mensaje + 'En movimiento \n'
 		
 		if vel_adjust != 0:
