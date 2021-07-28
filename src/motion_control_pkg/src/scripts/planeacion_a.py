@@ -1,27 +1,20 @@
 #!/usr/bin/env python3
-from typing import Tuple
 import cv2
 import time
 from heapq import heappop, heappush
 import numpy 
 from PIL import Image
-import cv_bridge
-from std_msgs import msg
-global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
-from std_msgs.msg import String
 from rospy.numpy_msg import numpy_msg
-from std_msgs.msg import Float32MultiArray
-from std_msgs.msg import MultiArrayDimension
 from geometry_msgs.msg import PoseArray
 import roslib
 import rospy
 import os
-roslib.load_manifest('rospy')
-from std_msgs.msg import MultiArrayDimension
 from rospy_tutorials.msg import Floats
-#messages for image publisher
 from sensor_msgs.msg import Image as Image2
 from cv_bridge import CvBridge, CvBridgeError
+
+global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
+roslib.load_manifest('rospy')
 
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
@@ -98,6 +91,7 @@ def configuration_method(inicial_m,final_m):
 			coordenates_array.append([pos_actualx,pos_actualy])
 
 	esquinas =coordenates(coordenates_array)
+	esquinas = depurar_coord (esquinas)
 	dibujo_ruta2(pixel,coordenates_array,esquinas,width,height)
 	print (f"* {len (esquinas)} Coordenates.")
 	finales = convertir(esquinas,width,height)
@@ -508,8 +502,7 @@ def planeacion_nodo():
 	global pub
 	global img_pub
 	print ("Esperando coordenadas.")
-	rospy.init_node('Planeacion', anonymous=True)  # Inicia el nodo teleop
-	#pub = rospy.Publisher('/robocol/ruta', numpy_nd_msg(Float32MultiArray), queue_size=1)    #toca modificar los mensajes 
+	rospy.init_node('Planeacion', anonymous=True)  # Inicia el nodo teleop 
 	pub = rospy.Publisher('Robocol/MotionControl/ruta', numpy_msg(Floats),queue_size=10)
 	img_pub = rospy.Publisher('Robocol/MotionControl/imagen', Image2, queue_size=1)
 	rospy.Subscriber('/Robocol/Inicio_fin', PoseArray, inicio_fin)
