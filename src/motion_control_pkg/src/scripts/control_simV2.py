@@ -113,7 +113,7 @@ def main_control():
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
 	beta = -theta - alpha
 
-	auto = True
+	#auto = True
 
 	while not rospy.is_shutdown():
 		empezarDeNuevo = False
@@ -160,6 +160,10 @@ def main_control():
 
 				rho = np.sqrt(deltaX**2 + deltaY**2)
 				alpha = -theta + np.arctan2(deltaY, deltaX)
+				if alpha > np.pi:
+					alpha = alpha - np.pi 
+				elif alpha < -np.pi:
+					alpha= alpha +np.pi
 
 				beta = 0
 
@@ -195,6 +199,10 @@ def main_control():
 							#alpha = -aux + beta
 
 							alpha = -theta + np.arctan2(deltaY, deltaX)
+							if alpha > np.pi:
+								alpha = alpha - np.pi 
+							elif alpha < -np.pi:
+								alpha= alpha +np.pi
 							K_alpha = 0.4 + 0.3 * np.exp(-alpha)
 
 							w_vel = K_alpha*alpha + K_beta*beta
@@ -238,7 +246,10 @@ def main_control():
 
 							rho = np.sqrt(deltaX**2 + deltaY**2)
 							alpha = -theta + np.arctan2(deltaY, deltaX)
-
+							if alpha > np.pi:
+								alpha = alpha - np.pi 
+							elif alpha < -np.pi:
+								alpha= alpha +np.pi
 
 							v_vel = K_rho*rho + 0.5 * np.exp(-rho)
 
@@ -328,6 +339,9 @@ def main_control():
 			rate.sleep()
 		rate.sleep()
 if __name__ == '__main__':
-	main_control()	
+	try:
+		main_control()
+	except rospy.ROSInterruptException:
+		print('Nodo detenido')
 
 
