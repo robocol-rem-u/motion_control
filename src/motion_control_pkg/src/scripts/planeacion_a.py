@@ -5,7 +5,7 @@ import cv2
 import time
 from heapq import heappop, heappush
 import numpy 
-from PIL import Image
+#from PIL import Image
 import cv_bridge
 from std_msgs import msg
 global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
@@ -29,8 +29,8 @@ def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
 	#ruta = scriptDir + "/imagen5.png"
 	ruta = scriptDir + "/prueba2.png"
-	img = Image.open(ruta).convert('RGB')
-	pixel=img.load()
+	#img = Image.open(ruta).convert('RGB')
+	#pixel=img.load()
 	# DO NOT CHANGE
 	# load gridmap
 	gridmap = cv2.imread(ruta,0) 
@@ -50,7 +50,7 @@ def configuration_method(inicial_m,final_m):
 	x_final = pixels([x_final_m,y_final_m],height, width) [0]
 	y_final = pixels([x_final_m,y_final_m],height, width) [1]
 	
-	x_inicial,y_inicial,x_final,y_final=es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height)
+	x_inicial,y_inicial,x_final,y_final=es_obstaculo(gridmap,x_inicial,y_inicial,x_final,y_final,width,height)
 	#declaración coordenadas iniciales y finales
 	
 	coordenates_array = []
@@ -100,7 +100,7 @@ def configuration_method(inicial_m,final_m):
 			coordenates_array.append([pos_actualx,pos_actualy])
 
 	esquinas =coordenates(coordenates_array)
-	dibujo_ruta2(pixel,coordenates_array,esquinas,width,height)
+	dibujo_ruta2(gridmap,coordenates_array,esquinas,width,height)
 	print (f"* {len (esquinas)} Coordenates.")
 	finales = convertir(esquinas,width,height)
 	return finales
@@ -283,10 +283,8 @@ def convertir (route, width,height):
 	return final_coordenates
 
 def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
-	#print("inicial",x_inicial,y_inicial)
-	#print("final",x_final,y_final)
-	#print("-------------------")
-	if pixel[x_inicial,y_inicial][0]!=255 and pixel[x_inicial,y_inicial][1]!=255 and pixel[x_inicial,y_inicial][2]!=255:
+	
+	if pixel[x_inicial,y_inicial]!=2.55:
 		print("La posicion inicial es un obstaculo")
 		izquierda = x_inicial
 		derecha = x_inicial
@@ -296,7 +294,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 		while (aux):
 			# Mirar izquierda
 			entro = True
-			if aux and pixel[izquierda,y_inicial]!=None and pixel[izquierda,y_inicial][0]!=255 and pixel[izquierda,y_inicial][1]!=255 and pixel[izquierda,y_inicial][2]!=255:
+			if aux and pixel[izquierda,y_inicial]!=None and pixel[izquierda,y_inicial]!=2.55:
 				izquierda=izquierda-1
 			elif entro:
 				aux=False
@@ -304,7 +302,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				x_inicial=izquierda
 				y_inicial=y_inicial
 			# Mirar derecha
-			if aux and pixel[derecha,y_inicial]!=None and pixel[derecha,y_inicial][0]!=255 and pixel[derecha,y_inicial][1]!=255 and pixel[derecha,y_inicial][2]!=255:
+			if aux and pixel[derecha,y_inicial]!=None and pixel[derecha,y_inicial]!=2.55:
 				derecha=derecha+1
 			elif entro:
 				aux=False
@@ -312,7 +310,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				x_inicial=derecha
 				y_inicial=y_inicial
 			# Mirar arriba
-			if aux and pixel[x_inicial,arriba]!=None and pixel[x_inicial,arriba][0]!=255 and pixel[x_inicial,arriba][1]!=255 and pixel[x_inicial,arriba][2]!=255:
+			if aux and pixel[x_inicial,arriba]!=None and pixel[x_inicial,arriba]!=2.55:
 				arriba=arriba+1
 			elif entro:
 				aux=False
@@ -320,7 +318,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				y_inicial=arriba
 				x_inicial=x_inicial
 			# Mirar abajo
-			if aux and pixel[x_inicial,abajo]!=None and pixel[x_inicial,abajo][0]!=255 and pixel[x_inicial,abajo][1]!=255 and pixel[x_inicial,abajo][2]!=255:
+			if aux and pixel[x_inicial,abajo]!=None and pixel[x_inicial,abajo]!=2.55:
 				abajo=abajo-1
 			elif entro:
 				aux=False
@@ -330,8 +328,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 			if aux and pixel[izquierda,y_inicial]==None and pixel[derecha,y_inicial]==None and pixel[x_inicial,arriba]==None and pixel[x_inicial,abajo]==None:
 				aux=False
 				print("No se encontro otro punto que no sea obstaculo")
-
-	if pixel[x_final,y_final][0]!=255 and pixel[x_final,y_final][1]!=255 and pixel[x_final,y_final][2]!=255:
+	if pixel[x_final,y_final]!=2.55:
 		print("La posicion final es un obstaculo")
 		izquierda = x_final
 		derecha = x_final
@@ -341,7 +338,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 		while (aux):
 			# Mirar izquierda
 			entro = True
-			if aux and pixel[izquierda,y_final]!=None and pixel[izquierda,y_final][0]!=255 and pixel[izquierda,y_final][1]!=255 and pixel[izquierda,y_final][2]!=255:
+			if aux and pixel[izquierda,y_final]!=None and pixel[izquierda,y_final]!=2.55:
 				izquierda=izquierda-1
 			elif entro:
 				aux=False
@@ -349,7 +346,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				x_final=izquierda
 				y_final=y_final
 			# Mirar derecha
-			if aux and pixel[derecha,y_final]!=None and pixel[derecha,y_final][0]!=255 and pixel[derecha,y_final][1]!=255 and pixel[derecha,y_final][2]!=255:
+			if aux and pixel[derecha,y_final]!=None and pixel[derecha,y_final]!=2.55:
 				derecha=derecha+1
 			elif entro:
 				aux=False
@@ -357,7 +354,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				x_final=derecha
 				y_final=y_final
 			# Mirar arriba
-			if aux and pixel[x_final,arriba]!=None and pixel[x_final,arriba][0]!=255 and pixel[x_final,arriba][1]!=255 and pixel[x_final,arriba][2]!=255:
+			if aux and pixel[x_final,arriba]!=None and pixel[x_final,arriba]!=2.55:
 				arriba=arriba+1
 			elif entro:
 				aux=False
@@ -365,7 +362,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				y_final=arriba
 				x_final=x_final
 			# Mirar abajo
-			if aux and pixel[x_final,abajo]!=None and pixel[x_final,abajo][0]!=255 and pixel[x_final,abajo][1]!=255 and pixel[x_final,abajo][2]!=255:
+			if aux and pixel[x_final,abajo]!=None and pixel[x_final,abajo]!=2.55:
 				abajo=abajo-1
 			elif entro:
 				aux=False
@@ -385,7 +382,7 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 	RGBMap=[]
 	for i in range(width):
 		for j in range(height):
-			if pixel[j,i][0]==255 and pixel[j,i][1]==255 and pixel[j,i][2]==255:
+			if pixel[j,i]==2.55:
 				matrixMap[i,j]=1
 			else:
 				matrixMap[i,j]=0
