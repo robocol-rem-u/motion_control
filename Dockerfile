@@ -10,7 +10,6 @@ RUN apt update && apt -y upgrade && apt install -y \
 RUN python3 -m pip install --upgrade pip 
 RUN pip3 install \
     opencv-python \
-# matplotlib \
     rospkg \
     pynput
 
