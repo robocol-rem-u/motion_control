@@ -3,11 +3,8 @@ from planeacion_a import inicio_fin
 import rospy
 import time
 import threading
-from std_msgs.msg import Header
 from std_msgs.msg import Float32MultiArray
-from nav_msgs.msg import Path
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseArray
 

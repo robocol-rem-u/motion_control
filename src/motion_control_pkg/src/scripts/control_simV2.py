@@ -113,7 +113,7 @@ def main_control():
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
 	beta = -theta - alpha
 
-	#auto = True
+	auto = True
 
 	while not rospy.is_shutdown():
 		empezarDeNuevo = False
