@@ -3,14 +3,12 @@ import rospy
 import numpy as np
 import sys
 import time
-#import roslib
-from std_msgs.msg import String, Float32MultiArray, Float32
 from geometry_msgs.msg import *
-from std_msgs.msg import Bool
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from rospy.numpy_msg import numpy_msg
 from rospy_tutorials.msg import Floats
+from std_msgs.msg import *
 
 global pos_x, pos_y, theta, deltaX, deltaY
 global rate, rho, auto, ruta, hayRuta
@@ -90,6 +88,7 @@ def main_control():
 	rospy.init_node('control', anonymous=True) #Inicio nodo
 
 	pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+	pub_probe = rospy.Publisher('probe_deployment_unit/drop', Empty, queue_size=1)
 	pub_pos_status = rospy.Publisher('Robocol/MotionControl/pos', Twist, queue_size=10)
 	pub_pos_final_status = rospy.Publisher('Robocol/MotionControl/pos_final', Twist, queue_size=10)
 	pub_rho_status = rospy.Publisher('Robocol/MotionControl/rho', Float32, queue_size=10)
@@ -114,7 +113,7 @@ def main_control():
 	alpha = -theta + np.arctan2(endPos[1], endPos[0])
 	beta = -theta - alpha
 
-	#auto = True
+	auto = True
 
 	while not rospy.is_shutdown():
 		empezarDeNuevo = False
@@ -296,6 +295,8 @@ def main_control():
 								time.sleep(1)
 								rate.sleep()
 							empezarDeNuevo = True
+			print("Probe droped")
+			pub_probe.publish()
 			hayRuta = 0
 
 			if auto == True:
