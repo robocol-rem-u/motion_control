@@ -11,7 +11,8 @@ RUN python3 -m pip install --upgrade pip
 RUN pip3 install \
     opencv-python \
     rospkg \
-    pynput
+    pynput \
+    Pillow
 
 # copy .repos file in for fast cloning of remote repository if necessary
 COPY motion.repos /
