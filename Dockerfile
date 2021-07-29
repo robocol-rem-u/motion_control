@@ -10,14 +10,10 @@ RUN apt update && apt -y upgrade && apt install -y \
 # install python requirements 
 RUN python3 -m pip install --upgrade pip 
 
-RUN pip3 uninstall -y numpy
-
 RUN pip3 install \
     numpy==1.19.4 \
     opencv-python \
-    rospkg \
-    pynput \
-    Pillow
+    rospkg 
 
 # copy .repos file in for fast cloning of remote repository if necessary
 COPY motion.repos /
