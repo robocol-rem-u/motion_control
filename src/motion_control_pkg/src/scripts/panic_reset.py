@@ -38,7 +38,7 @@ class Poses_Publish(object):
             print(" D: To deploy probe.")
             print(' V: To adjust velocity.')
             print(" R: To reset odometry.")
-            op = input(' > ')
+            op = str(input(' > '))
             print(op)
             if op == "P" or op == 'p':
                 print(' PANIK BUTTON')
@@ -54,7 +54,7 @@ class Poses_Publish(object):
                 vel_robot.angular.z = 0
                 self.pubVel.publish(vel_robot)
                 print('Press P again to resume.')
-                a = input(' > ')
+                a = str(input(' > '))
                 if a == 'P' or a == 'p':
                     print(' ENABLING MOVEMENT')
                     flag_panic = False
