@@ -4,6 +4,10 @@ import cv2
 import os 
 from nav_msgs.msg import Odometry
 
+# publicar imagenes
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+
 global pos_x, pos_y
 global pos_x_total_zed2, pos_y_total_zed2
 
@@ -35,8 +39,8 @@ def pixels (coord,height, width) :
 	y_len = 40
 	x_scale = float(x_len  * width**(-1))
 	y_scale = float(y_len  * height**(-1))
-	x_center = width / 2 + 14/x_scale
-	y_center = height / 2 - 2.4/y_scale
+	x_center = width / 2 - 14/x_scale
+	y_center = height / 2 + 2.4/y_scale
 
 	x =  round((coord[0] / x_scale) +  x_center) 
 	y =  round((coord [1] / y_scale ) + y_center)   
@@ -45,12 +49,12 @@ def pixels (coord,height, width) :
 #Funcion principal grafica
 def main():
 	global pos_x, pos_y
-
+	global img_pub
 	rospy.init_node('control', anonymous=True) #Inicio nodo
 
 	rate = rospy.Rate(10) #10hz
 	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
-
+	img_pub = rospy.Publisher('Robocol/MotionControl/imagen', Image, queue_size=1)
 	print('Graficando...')
 
 	while not rospy.is_shutdown():
@@ -69,7 +73,15 @@ def main():
 			cv2.resizeWindow('Plot',height/2, width/2)
 			cv2.imshow('Plot',img_final)
 			cv2.waitKey(1)
+		# publicar imagen
+		bridge = CvBridge()
+		try:
+			image_message = bridge.cv2_to_imgmsg(img_final, encoding= 'passthrough')
+			img_pub.publish(image_message)
 
+		except CvBridgeError as e:
+			print(e)
+			
 	print(' Cerrando plot...')
 	scriptDir = os.path.dirname(__file__)
 	ruta_img2 = scriptDir + "/mapa_con_pose_robot.png"
