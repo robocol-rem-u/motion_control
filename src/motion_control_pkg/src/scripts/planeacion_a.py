@@ -3,7 +3,6 @@ import cv2
 import time
 from heapq import heappop, heappush
 import numpy 
-from PIL import Image
 from rospy.numpy_msg import numpy_msg
 from geometry_msgs.msg import PoseArray
 import roslib
@@ -47,7 +46,7 @@ def configuration_method(gridmap,height,width, x_inicial, y_inicial, x_final, y_
 
 	pos_actualx = x_inicial
 	pos_actualy = y_inicial
-	print (f"path {path}")
+	
 	for direccion in path:
 		if direccion == "N":
 			pos_actualx = pos_actualx 
@@ -68,7 +67,7 @@ def configuration_method(gridmap,height,width, x_inicial, y_inicial, x_final, y_
 			pos_actualy = pos_actualy 
 			coordenates_array.append([pos_actualx,pos_actualy])
 
-	print (coordenates_array)
+	
 	esquinas =coordenates(coordenates_array)
 	esquinas = depurar_coord (esquinas)
 
@@ -255,8 +254,7 @@ def convertir (route, width,height):
 	return final_coordenates
 
 def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
-	print (pixel.shape)
-	print (pixel[x_inicial,y_inicial])
+
 	if pixel[x_inicial,y_inicial]< 2:
 		print("La posicion inicial es un obstaculo")
 		izquierda = x_inicial
@@ -301,8 +299,7 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 			if aux and pixel[izquierda,y_inicial]==None and pixel[derecha,y_inicial]==None and pixel[x_inicial,arriba]==None and pixel[x_inicial,abajo]==None:
 				aux=False
 				print("No se encontro otro punto que no sea obstaculo")
-	print(f"x final {x_final} y final {y_final}")			
-	print (pixel[y_final,x_final])	
+	
 	if pixel[x_final,y_final] < 2:
 		print("La posicion final es un obstaculo")
 		izquierda = x_final
@@ -348,8 +345,6 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 				aux=False
 				print("No se encontro otro punto que no sea obstaculo")
 
-	#print("inicial",x_inicial,y_inicial)
-	#print("final",x_final,y_final)
 	return x_inicial,y_inicial,x_final,y_final
 
 def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
@@ -386,13 +381,15 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 			file.append(RGB)
 		RGBMap.append(file)
 	RGBMap=numpy.array(RGBMap).astype(numpy.uint8)
-	routeMap=Image.fromarray(RGBMap,"RGBA")
+	
+	#routeMap=Image.fromarray(RGBMap,"RGBA")
 	scriptDir = os.path.dirname(__file__)
 	ruta = scriptDir + "/mapafinal.png"
-	routeMap.save(ruta)
+	cv2.imwrite (ruta,RGBMap)
+	#routeMap.save(ruta)
 
 	print("*Se guardo el mapa")
-	return routeMap
+	return True
 
 def pixels (coord,height, width) :
 	x_len = 30
@@ -452,7 +449,7 @@ def inicio_fin(coordenadas):
 		r = numpy.array (ruta2,dtype = numpy.float32)
 		pub.publish(r)
 		print ("*Route published")
-		print (ruta2)
+
 		scriptDir = os.path.dirname(__file__)
 		ruta = scriptDir + "/Mapa_Test_drive_3_mod.jpg"
 		image = cv2.imread(ruta)
