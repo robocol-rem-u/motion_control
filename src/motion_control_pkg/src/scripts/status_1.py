@@ -46,10 +46,10 @@ def pos_callback(msg):
 	pos_y_info = msg.linear.y
 	theta_info = msg.angular.z
 
-	if (abs(pos_x_info-pos_x_info_anterior) < 0.01 and abs(pos_y_info-pos_y_info_anterior) < 0.01 and abs(theta_info-theta_info_anterior) < 0.01):
-		cont = cont + 1
-	else:
-		cont = 0
+	#if (abs(pos_x_info-pos_x_info_anterior) < 0.01 and abs(pos_y_info-pos_y_info_anterior) < 0.01 and abs(theta_info-theta_info_anterior) < 0.01):
+	#	cont = cont + 1
+	#else:
+	#	cont = 0
 
 	pos_x_info_anterior = pos_x_info
 	pos_y_info_anterior = pos_y_info
@@ -104,10 +104,14 @@ def info_status():
 		else:
 			mensaje = mensaje + 'No ha llegado' + '\n'
 
-		if (cont >= 1000):
+		#if (cont >= 1000):
+		if vel_lin_x_info < 0.01 and vel_lin_x_info > -0.01 and vel_ang_z_info < 0.01:
 			mensaje = mensaje + 'Detenido \n'
 		else:
-			mensaje = mensaje + 'En movimiento \n'
+			mensaje = mensaje + 'En movimiento'
+			if vel_lin_x_info < 0:
+				mensaje = mensaje + ' - Voy hacia atras.'
+			mensaje = mensaje + '\n'
 		
 		if vel_adjust != 0:
 			mensaje = mensaje + 'La velocidad esta siendo ajustada por: ' + str(round(vel_adjust,3)) + '\n'

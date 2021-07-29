@@ -2,9 +2,9 @@
 import rospy
 import time
 import threading
-from std_msgs.msg import *
-from nav_msgs.msg import *
-from geometry_msgs.msg import *
+from std_msgs.msg import Bool, Empty, Float32
+#from nav_msgs.msg import *
+from geometry_msgs.msg import Twist
 
 #TIENE BOTON DE PANICO, DEPLOY PROBE, AJUSTAR VELOCIDAD Y RESET ODOMETRY
 #ROBOCOL
@@ -38,7 +38,7 @@ class Poses_Publish(object):
             print(" D: To deploy probe.")
             print(' V: To adjust velocity.')
             print(" R: To reset odometry.")
-            op = raw_input(' > ')
+            op = input(' > ')
             print(op)
             if op == "P" or op == 'p':
                 print(' PANIK BUTTON')
@@ -54,7 +54,7 @@ class Poses_Publish(object):
                 vel_robot.angular.z = 0
                 self.pubVel.publish(vel_robot)
                 print('Press P again to resume.')
-                a = raw_input(' > ')
+                a = input(' > ')
                 if a == 'P' or a == 'p':
                     print(' ENABLING MOVEMENT')
                     flag_panic = False
