@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+print ("*beginning.")
 from typing import Tuple
 import cv2
 import time
@@ -23,6 +24,7 @@ from rospy_tutorials.msg import Floats
 from sensor_msgs.msg import Image as Image2
 from cv_bridge import CvBridge, CvBridgeError
 
+print ("*libraries ready.")
 def configuration_method(inicial_m,final_m):
 	scriptDir = os.path.dirname(__file__)
 	#ruta = scriptDir + "/imagen5.png"
