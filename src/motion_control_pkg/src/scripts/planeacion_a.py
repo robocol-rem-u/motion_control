@@ -16,32 +16,9 @@ from cv_bridge import CvBridge, CvBridgeError
 global pub,  width, height, PROB_FREE, PROB_OCC, START, GOAL, gridmap, heuristic, graph, graph_tools, path
 roslib.load_manifest('rospy')
 
-def configuration_method(inicial_m,final_m):
-	scriptDir = os.path.dirname(__file__)
-	#ruta = scriptDir + "/imagen5.png"
-	ruta = scriptDir + "/Mapa_Test_drive_3_mod.jpg"
-	#img = Image.open(ruta).convert('RGB')
-	#pixel=img.load()
-	# DO NOT CHANGE
-	# load gridmap
-	gridmap = cv2.imread(ruta,0) 
-	gridmap = gridmap/100
+def configuration_method(gridmap,height,width, x_inicial, y_inicial, x_final, y_final):
 	PROB_FREE = 0.3
-	PROB_OCC = 0.6
-	
-	# DO NOT CHANGE
-	# size of canvas (variables used in Tools methods)
-	height, width = gridmap.shape
-	x_inicial_m = float(inicial_m[0])
-	y_inicial_m = float(inicial_m[1])
-	x_final_m  = float (final_m[0])
-	y_final_m   = float (final_m[1])
-	x_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [0]
-	y_inicial = pixels([x_inicial_m,y_inicial_m],height, width) [1]
-	x_final = pixels([x_final_m,y_final_m],height, width) [0]
-	y_final = pixels([x_final_m,y_final_m],height, width) [1]
-	
-	x_inicial,y_inicial,x_final,y_final=es_obstaculo(gridmap,x_inicial,y_inicial,x_final,y_final,width,height)
+	#x_inicial,y_inicial,x_final,y_final=es_obstaculo(gridmap,x_inicial,y_inicial,x_final,y_final,width,height)
 	#declaración coordenadas iniciales y finales
 	
 	coordenates_array = []
@@ -70,6 +47,7 @@ def configuration_method(inicial_m,final_m):
 
 	pos_actualx = x_inicial
 	pos_actualy = y_inicial
+	print (f"path {path}")
 	for direccion in path:
 		if direccion == "N":
 			pos_actualx = pos_actualx 
@@ -90,8 +68,10 @@ def configuration_method(inicial_m,final_m):
 			pos_actualy = pos_actualy 
 			coordenates_array.append([pos_actualx,pos_actualy])
 
+	print (coordenates_array)
 	esquinas =coordenates(coordenates_array)
 	esquinas = depurar_coord (esquinas)
+
 	dibujo_ruta2(gridmap,coordenates_array,esquinas,width,height)
 	print (f"* {len (esquinas)} Coordenates.")
 	finales = convertir(esquinas,width,height)
@@ -264,7 +244,7 @@ def convertir (route, width,height):
 	y_len = 40
 	x_scale = round (x_len  / width , 3) 
 	y_scale = round (y_len  / height , 3)
-	x_center = width / 2 + 14/x_scale
+	x_center = width / 2 - 14/x_scale
 	y_center = height / 2 - 2.4/y_scale
 	final_coordenates=[] 
 	for i in range(len(route)):
@@ -275,8 +255,9 @@ def convertir (route, width,height):
 	return final_coordenates
 
 def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
-	
-	if pixel[x_inicial,y_inicial]!=2.55:
+	print (pixel.shape)
+	print (pixel[x_inicial,y_inicial])
+	if pixel[x_inicial,y_inicial]< 2:
 		print("La posicion inicial es un obstaculo")
 		izquierda = x_inicial
 		derecha = x_inicial
@@ -320,7 +301,9 @@ def es_obstaculo(pixel,x_inicial,y_inicial,x_final,y_final,width,height):
 			if aux and pixel[izquierda,y_inicial]==None and pixel[derecha,y_inicial]==None and pixel[x_inicial,arriba]==None and pixel[x_inicial,abajo]==None:
 				aux=False
 				print("No se encontro otro punto que no sea obstaculo")
-	if pixel[x_final,y_final]!=2.55:
+	print(f"x final {x_final} y final {y_final}")			
+	print (pixel[y_final,x_final])	
+	if pixel[x_final,y_final] < 2:
 		print("La posicion final es un obstaculo")
 		izquierda = x_final
 		derecha = x_final
@@ -379,6 +362,7 @@ def dibujo_ruta2(pixel,array_pos,esquinas,height,width):
 			
 			if pixel[i,j]>=2:
 				matrixMap[i,j]=1
+
 			else:
 				matrixMap[i,j]=0
 	for i in range(len(array_pos)):
@@ -415,7 +399,7 @@ def pixels (coord,height, width) :
 	y_len = 40
 	x_scale = x_len  / width 
 	y_scale = y_len  / height
-	x_center = width / 2 + 14/x_scale
+	x_center = width / 2 - 14/x_scale
 	y_center = height / 2 - 2.4/y_scale
 
 	x =  round((coord[0] / x_scale) +  x_center) 
@@ -427,7 +411,6 @@ def inicio_fin(coordenadas):
 	global pub
 	global img_pub
 	scriptDir = os.path.dirname(__file__)
-	#ruta = scriptDir + "/imagen5.png"
 	ruta = scriptDir + "/Mapa_Test_drive_3_mod.jpg"
 	gridmap = cv2.imread(ruta,0) 
 	window_name = "image"
@@ -437,10 +420,10 @@ def inicio_fin(coordenadas):
 	#cv2.destroyAllWindows()
 	height, width = gridmap.shape
 	
-	x_ini = - coordenadas.poses[0].position.x    #toca crear el mensaje
-	y_ini = coordenadas.poses[0].position.y    #toca crear el mensaje
-	x_fin = - coordenadas.poses[1].position.x     #toca crear el mensaje
-	y_fin = coordenadas.poses[1].position.y     #toca crear el mensaje
+	x_ini = coordenadas.poses[0].position.x    #toca crear el mensaje
+	y_ini = -coordenadas.poses[0].position.y    #toca crear el mensaje
+	x_fin = coordenadas.poses[1].position.x     #toca crear el mensaje
+	y_fin = -coordenadas.poses[1].position.y     #toca crear el mensaje
 	inicial_m=(x_ini,y_ini)
 	final_m=(x_fin,y_fin)
 
@@ -459,16 +442,17 @@ def inicio_fin(coordenadas):
 	if not fuera_rango(x_inicial,y_inicial,x_final,y_final,width,height):
     	#cambiar las coordenadas de metros a pixeles   
 		
-		print(f"Inicio:({-x_ini},{y_ini})\nFin:({-x_fin},{y_fin})")
-		ruta=configuration_method(inicial_m,final_m)
+		print(f"Inicio:({x_ini},{-y_ini})\nFin:({x_fin},{-y_fin})")
+		ruta=configuration_method(gridmap,height,width, x_inicial, y_inicial, x_final, y_final)
 		print("*Finalizado")
 		ruta2 = []
 		for i in range (len(ruta)):
-			ruta2.append(-ruta[i][0])
-			ruta2.append(ruta[i][1])
+			ruta2.append(ruta[i][0])
+			ruta2.append(-ruta[i][1])
 		r = numpy.array (ruta2,dtype = numpy.float32)
 		pub.publish(r)
 		print ("*Route published")
+		print (ruta2)
 		scriptDir = os.path.dirname(__file__)
 		ruta = scriptDir + "/Mapa_Test_drive_3_mod.jpg"
 		image = cv2.imread(ruta)
