@@ -273,7 +273,7 @@ def main_control():
 								v_x = -v_vel
 								v_y = 0
 								v_omega = 0
-								print('----------------Voy Hacia Atras--------------------V_X: ' + str(round(v_x, 3)))
+								#print('----------------Voy Hacia Atras--------------------V_X: ' + str(round(v_x, 3)))
 							
 							vel_robot.linear.x = v_x + vel_adjust
 							vel_robot.linear.y = v_y
