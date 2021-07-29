@@ -8,7 +8,9 @@ RUN apt update && apt -y upgrade && apt install -y \
      
 # install python requirements 
 RUN python3 -m pip install --upgrade pip 
+RUN pip3 uninstall numpy
 RUN pip3 install \
+    numpy==1.19.4 \
     opencv-python \
     rospkg \
     pynput \
