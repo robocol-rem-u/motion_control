@@ -69,8 +69,8 @@ def main():
 		for i in range(len(pos_y_total_zed2)):
 			image = cv2.circle(gridmap, (pos_x_total_zed2[i],pos_y_total_zed2[i]), radius=5, color=(0, 0, 255), thickness=-1) #color=(Blue,Green,Red)
 			img_final = cv2.resize(image, (594, 802), interpolation=cv2.INTER_AREA) #(594,802)
-			cv2.namedWindow('Plot')
-			cv2.resizeWindow('Plot',height/2, width/2)
+			#cv2.namedWindow('Plot')
+			#cv2.resizeWindow('Plot',height/2, width/2)
 			# cv2.imshow('Plot',img_final)
 			# cv2.waitKey(1)
 			# publicar imagen
