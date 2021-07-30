@@ -40,7 +40,7 @@ def pixels (coord,height, width) :
 	x_scale = float(x_len  * width**(-1))
 	y_scale = float(y_len  * height**(-1))
 	x_center = width / 2 - 14/x_scale
-	y_center = height / 2 + 2.4/y_scale
+	y_center = height / 2 - 2.4/y_scale
 
 	x =  round((coord[0] / x_scale) +  x_center) 
 	y =  round((coord [1] / y_scale ) + y_center)   
