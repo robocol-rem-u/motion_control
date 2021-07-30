@@ -22,7 +22,7 @@ pos_x_total_zed2 = [0]
 pos_y_total_zed2 = [0]
 
 scriptDir = os.path.dirname(__file__)
-ruta_img = scriptDir + "/mapafinal.png" #Utiliza el mapa que sale al correr "planeacion_a.py"
+ruta_img = scriptDir + "/Mapa_Ruta_Planeada.png" #Utiliza el mapa que sale al correr "planeacion_a.py"
 gridmap = cv2.imread(ruta_img,0) 
 
 height, width = gridmap.shape
