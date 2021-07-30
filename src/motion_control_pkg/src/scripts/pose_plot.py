@@ -3,26 +3,23 @@ import rospy
 import cv2
 import os 
 from nav_msgs.msg import Odometry
-from gazebo_msgs.msg import ModelStates
 
-global pos_x, pos_y, pos_x_model, pos_y_model
-global pos_x_total_zed2, pos_y_total_zed2, pos_x_total_model, pos_y_total_model
-global final
+# publicar imagenes
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+
+global pos_x, pos_y
+global pos_x_total_zed2, pos_y_total_zed2
 
 #GRAFICA EN TIEMPO REAL LA POSICION DEL ROBOT EN EL MAPA
 #CAMBIAR LA DIRECCION DE LA IMAGEN (gridmap), SOLO CORRER DESPUES DE CORRER PLANEACION
 #ROBOCOL
 
-pos_x, pos_y, pos_x_model, pos_y_model = 0, 0, 0, 0,
+pos_x, pos_y = 0, 0
 
 #Variables para acumular todas las posiciones
 pos_x_total_zed2 = [0]
 pos_y_total_zed2 = [0]
-pos_x_total_model = [0]
-pos_y_total_model = [0]
-
-final = False #Variables para terminar plot
-
 
 scriptDir = os.path.dirname(__file__)
 ruta_img = scriptDir + "/mapafinal.png" #Utiliza el mapa que sale al correr "planeacion_a.py"
@@ -37,51 +34,59 @@ def position_callback(msg): #Me regresa la posicion del robot segun Zed2
 	pos_x = msg.pose.pose.position.x
 	pos_y = msg.pose.pose.position.y
 
-	pos_x_total_zed2.append(pos_x)
-	pos_y_total_zed2.append(pos_y)
+def pixels (coord,height, width) :
+	x_len = 30
+	y_len = 40
+	x_scale = float(x_len  * width**(-1))
+	y_scale = float(y_len  * height**(-1))
+	x_center = width / 2 - 14/x_scale
+	y_center = height / 2 + 2.4/y_scale
 
-
-def model_callback(msg): #Me regresa la posicion del robot segun Model States
-	global pos_x_model, pos_y_model, pos_x_total_model, pos_y_total_model
-	msg_pose = msg.pose
-	msg_pose_pos = msg_pose[1].position
-	pos_x_model = msg_pose_pos.x
-	pos_y_model = msg_pose_pos.y
-
-	pos_x_total_model.append(pos_x_model)
-	pos_y_total_model.append(pos_y_model)	
+	x =  round((coord[0] / x_scale) +  x_center) 
+	y =  round((coord [1] / y_scale ) + y_center)   
+	return [int(x),int(y)]
 
 #Funcion principal grafica
 def main():
-	global pos_x, pos_y, final, pos_x_model, pos_y_model
-
+	global pos_x, pos_y
+	global img_pub
 	rospy.init_node('control', anonymous=True) #Inicio nodo
 
-	#pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 	rate = rospy.Rate(10) #10hz
 	rospy.Subscriber("zed2/odom", Odometry, position_callback, tcp_nodelay=True)
-	rospy.Subscriber("gazebo/model_states", ModelStates, model_callback, tcp_nodelay=True)
-
+	img_pub = rospy.Publisher('Robocol/MotionControl/imagen', Image, queue_size=1)
 	print('Graficando...')
 
 	while not rospy.is_shutdown():
-		pos_x_new = int(pos_x*10 + width/2)
-		pos_y_new = int(pos_y*10 + height/2)
+		#pos_x_new = int(pos_x*10 + width/2)
+		#pos_y_new = int(pos_y*10 + height/2)
 
-		pos_x_new_model = int(pos_x_model*10 + width/2)
-		pos_y_new_model = int(pos_y_model*10 + height/2)
+		poses_new = pixels((pos_x,pos_y), height, width)
+
+		pos_x_total_zed2.append(poses_new[0])
+		pos_y_total_zed2.append(poses_new[1])
 		
-		#print('POS X: ', round(pos_x,3),'POS Y: ', round(pos_y,3), 'Model_X: ', round(pos_x_model,3),'Model_Y: ', round(pos_y_model,3))
+		for i in range(len(pos_y_total_zed2)):
+			image = cv2.circle(gridmap, (pos_x_total_zed2[i],pos_y_total_zed2[i]), radius=5, color=(0, 0, 255), thickness=-1) #color=(Blue,Green,Red)
+			img_final = cv2.resize(image, (594, 802), interpolation=cv2.INTER_AREA) #(594,802)
+			cv2.namedWindow('Plot')
+			cv2.resizeWindow('Plot',height/2, width/2)
+			cv2.imshow('Plot',img_final)
+			cv2.waitKey(1)
+			# publicar imagen
+			bridge = CvBridge()
+			try:
+				image_message = bridge.cv2_to_imgmsg(img_final, encoding= 'passthrough')
+				img_pub.publish(image_message)
 
-		image = cv2.circle(gridmap, (pos_x_new,pos_y_new), radius=1, color=(255, 0, 0), thickness=-1) #color=(Blue,Green,Red)
-		image_model = cv2.circle(gridmap, (pos_x_new_model,pos_y_new_model), radius=1, color=(0, 0, 255), thickness=-1)
-		img_final = cv2.resize(image + image_model, (500, 500), interpolation=cv2.INTER_AREA)
-		cv2.namedWindow('Plot')
-		cv2.resizeWindow('Plot',height/2, width/2)
-		cv2.imshow('Plot',img_final)
-		cv2.waitKey(1)
-
-	final = True
+			except CvBridgeError as e:
+				print(e)
+			
+	print(' Cerrando plot...')
+	scriptDir = os.path.dirname(__file__)
+	ruta_img2 = scriptDir + "/mapa_con_pose_robot.png"
+	cv2.imwrite(ruta_img2, img_final)
+	print('  Imagen final guardada.')
 
 if __name__ == '__main__':
 	main()	
