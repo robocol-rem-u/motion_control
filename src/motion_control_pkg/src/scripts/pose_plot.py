@@ -71,8 +71,8 @@ def main():
 			img_final = cv2.resize(image, (594, 802), interpolation=cv2.INTER_AREA) #(594,802)
 			cv2.namedWindow('Plot')
 			cv2.resizeWindow('Plot',height/2, width/2)
-			cv2.imshow('Plot',img_final)
-			cv2.waitKey(1)
+			# cv2.imshow('Plot',img_final)
+			# cv2.waitKey(1)
 			# publicar imagen
 			bridge = CvBridge()
 			try:
